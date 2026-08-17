@@ -1,0 +1,16 @@
+column,required_for,description,allowed_or_expected_values
+rid,all,ADNI participant identifier used only locally,unique participant key
+at_stage,all,PET-defined A/T group,A-T-;A-T+;A+T-;A+T+
+tau_pet_date,all,Tau-PET anchor date,ISO date
+at_pair_days,all,Absolute days between selected amyloid PET and tau PET,0 to 180
+age_at_tau,all,Age at tau PET,numeric
+sex_male,all,Sex encoding,0 or 1
+education_years,all,Education duration,numeric
+apoe4_carrier,all,At least one APOE epsilon4 allele,0 or 1
+hippocampus_icv,hippocampal model,Hippocampal volume divided by intracranial volume,numeric
+hippocampus_icv_days_from_tau,hippocampal model,Absolute days from tau PET to selected MRI,0 to 180
+hippocampus_outlier_flag,hippocampal model,Modified-Z potential outlier flag,TRUE or FALSE
+cdrsb,cognitive model,Clinical Dementia Rating Sum of Boxes,numeric
+cdrsb_days_from_tau,cognitive model,Absolute days from tau PET to selected CDR-SB,0 to 180
+fdg_metaroi,FDG exploratory model,FDG MetaROI summary,numeric or missing
+fdg_metaroi_days_from_tau,FDG exploratory model,Absolute days from tau PET to selected FDG MetaROI,0 to 180 or missing

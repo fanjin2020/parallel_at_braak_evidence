@@ -1,0 +1,40 @@
+# Copy this file to config/project.yaml and edit local paths if needed.
+# project.yaml is intentionally excluded from Git.
+
+paths:
+  adni_raw_dir: data/private/adni/raw
+  adni_master: data/private/adni/adni_pet_aligned_master.csv
+  adni_model_counts: results/adni/adni_model_counts.csv
+
+  gse_series_matrix: data/public/gse131617/raw/GSE131617-GPL5175_series_matrix.txt.gz
+  gse_subject_info: data/public/gse131617/raw/GSE131617_subject_info.xlsx
+  gse_feature_expression: data/public/gse131617/expression_feature.csv.gz
+  gse_feature_annotation: data/public/gse131617/feature_annotation.csv
+  gse_manifest: data/public/gse131617/sample_manifest.csv
+  gse_pathway_expression: data/public/gse131617/pathway_expression.csv.gz
+
+  adni_results: results/adni/adni_results.csv
+  gse_results_dir: results/gse131617
+  pathway_results_dir: results/pathways
+  gse_sensitivity_dir: results/gse_sensitivity
+  gse_robust_genes: results/gse131617/braak_robust_genes.csv
+  stable_pathways: results/pathways/stable_pathways.csv
+  manuscript_tables_dir: results/manuscript_tables
+
+  gse_gene_symbols: data/contracts/gene_symbols.csv
+  go_bp_term_dictionary: data/contracts/go_bp_term_dictionary.csv
+  huex_annotation_sqlite: data/public/gse131617/annotation/huex10sttranscriptcluster.sqlite
+
+analysis:
+  primary_window_days: 180
+  sensitivity_window_days: 90
+  tau_positive_threshold: 1.34
+  fdr_alpha: 0.05
+
+  pathway_expected_entrez_n: 14894
+  pathway_min_genes: 10
+  pathway_max_genes: 300
+  camera_inter_gene_correlation: 0.01
+
+runtime:
+  rscript: Rscript
