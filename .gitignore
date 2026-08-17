@@ -1,0 +1,31 @@
+# Local configuration
+config/project.yaml
+
+# Restricted ADNI source data and participant-level derivatives
+data/private/**
+!data/private/.gitkeep
+
+# Downloaded or derived GEO files
+data/public/gse131617/**
+!data/public/.gitkeep
+
+# Results and execution logs
+results/**
+!results/.gitkeep
+validation/**
+!validation/.gitkeep
+
+# Python, R, and editor artefacts
+__pycache__/
+*.py[cod]
+.Rhistory
+.RData
+.Ruserdata
+.venv/
+.env
+.vscode/
+.idea/
+.project
+.pydevproject
+.DS_Store
+Thumbs.db
