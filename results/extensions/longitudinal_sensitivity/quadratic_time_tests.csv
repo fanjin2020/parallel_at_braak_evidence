@@ -1,0 +1,3 @@
+﻿test,status,df,wald_chi2,p_value,terms
+added_quadratic_time_terms,ok,2,5.1580702614988,0.07584715131243237,I(time_years ** 2);I(time_years ** 2):tau01
+tau_time_association_in_quadratic_model,ok,2,24.557846705113818,4.648698116289127e-06,time_years:tau01;I(time_years ** 2):tau01

@@ -1,0 +1,36 @@
+﻿group,diagnosis,n,n_total,n_known_diagnosis
+A-T-,CN,380,558,540
+A-T-,MCI,145,558,540
+A-T-,Dementia,15,558,540
+A-T-,no_visit,18,558,540
+A-T-,conflicting_nearest_date,0,558,540
+A-T+,CN,10,19,18
+A-T+,MCI,7,19,18
+A-T+,Dementia,1,19,18
+A-T+,no_visit,1,19,18
+A-T+,conflicting_nearest_date,0,19,18
+A+T-,CN,110,194,192
+A+T-,MCI,66,194,192
+A+T-,Dementia,16,194,192
+A+T-,no_visit,2,194,192
+A+T-,conflicting_nearest_date,0,194,192
+A+T+,CN,33,191,187
+A+T+,MCI,88,191,187
+A+T+,Dementia,66,191,187
+A+T+,no_visit,4,191,187
+A+T+,conflicting_nearest_date,0,191,187
+Baseline eligible,CN,122,336,333
+Baseline eligible,MCI,135,336,333
+Baseline eligible,Dementia,76,336,333
+Baseline eligible,no_visit,3,336,333
+Baseline eligible,conflicting_nearest_date,0,336,333
+With follow-up,CN,77,223,223
+With follow-up,MCI,95,223,223
+With follow-up,Dementia,51,223,223
+With follow-up,no_visit,0,223,223
+With follow-up,conflicting_nearest_date,0,223,223
+Without follow-up,CN,45,113,110
+Without follow-up,MCI,40,113,110
+Without follow-up,Dementia,25,113,110
+Without follow-up,no_visit,3,113,110
+Without follow-up,conflicting_nearest_date,0,113,110
