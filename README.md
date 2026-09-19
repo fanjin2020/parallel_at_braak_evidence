@@ -1,29 +1,35 @@
-# PET A/T 与晚期 Braak 转录组分析
+# PET A/T states and late-Braak transcriptomic context
 
-本仓库提供论文 *PET-defined amyloid and tau states and late-Braak transcriptomic context in Alzheimer’s disease* 的分析代码。
+Analysis code for *PET-defined amyloid and tau states and late-Braak transcriptomic context in Alzheimer’s disease*.
 
-ADNI 部分分析 PET 定义的淀粉样蛋白/tau（A/T）状态、连续 tau 负荷与海马体积、CDR-SB 的关系，并在 A+ 人群中开展探索性纵向分析。GSE131617 部分分析晚期 Braak 病理相关的皮层差异表达和 GO 生物过程。两个数据集分别分析，没有参与者层面的匹配。
+The ADNI analyses examine PET-defined amyloid/tau (A/T) states and continuous tau burden in relation to hippocampal volume and CDR-SB. Additional exploratory analyses examine subsequent CDR-SB change among amyloid-positive participants. The GSE131617 analyses examine cortical differential expression and GO biological processes associated with late Braak pathology. The two datasets are analyzed separately, without participant-level matching.
 
-代码输出统计结果和论文图表的数据来源。投稿用的最终排版图片不由本仓库生成。
+The workflow produces statistical results and source tables for the manuscript. It does not generate the submission Word documents or the final publication-layout figures.
 
-## 目录
+## Code versions
+
+The original analyses are archived at [Zenodo, version 1.0.0](https://doi.org/10.5281/zenodo.21971630). The updated workflow is maintained in [this GitHub repository](https://github.com/fanjin2020/parallel_at_braak_evidence). The version 1.0.0 archive does not contain the subsequent code updates.
+
+Record the Git commit or release tag used for each run. Updating GitHub does not update the files in an existing Zenodo archive.
+
+## Project layout
 
 ```text
-scripts/                     Python 和 R 分析脚本
-config/project.example.yaml  配置模板
-data/contracts/              字段定义、基因符号和 GO 术语字典
-requirements.txt             Python 依赖
-run_analysis.sh              Linux 完整运行入口
-LICENSE                      代码许可证
+scripts/                     Python and R analysis scripts
+config/project.example.yaml  Configuration template
+data/contracts/              Field definitions and gene/GO dictionaries
+requirements.txt             Python dependencies
+run_analysis.sh              Full-workflow launcher for Linux
+LICENSE                      Software license
 ```
 
-全部 Python 和 R 分析脚本放在一级 `scripts/` 目录。
+All Python and R analysis scripts are stored directly in `scripts/`. If applying the V3 code update package to an existing project, retain the original `data/contracts/` directory and prepare the input data below.
 
-## 数据准备
+## Input data
 
 ### ADNI
 
-ADNI 数据须通过其数据申请流程获取，本仓库不提供参与者级数据。将以下文件放入 `data/private/adni/raw/`：
+Obtain data through the [ADNI data-access process](https://adni.loni.usc.edu/). Participant-level data are not distributed in this repository. Place the following files in `data/private/adni/raw/`:
 
 ```text
 UCBERKELEY_AMY_6MM.csv
@@ -38,34 +44,32 @@ ADSL.csv
 DATA_DOWNLOADED_DATE.csv
 ```
 
-`DATA_DOWNLOADED_DATE.csv` 用于确定日历随访机会。该文件需包含 `data_downloaded_date` 列，日期采用 `YYYY-MM-DD` 格式，并与数据下载批次一致。
+`DATA_DOWNLOADED_DATE.csv` supplies the date used to assess calendar follow-up opportunity. It must contain a `data_downloaded_date` column in `YYYY-MM-DD` format, corresponding to the actual data download batch.
 
 ### GSE131617
 
-将表达矩阵和供者信息表放入 `data/public/gse131617/raw/`。配置模板中的文件名为：
+Obtain the expression matrix and donor information from [GEO accession GSE131617](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE131617). Place them in `data/public/gse131617/raw/`. The configuration template uses these filenames:
 
 ```text
 GSE131617-GPL5175_series_matrix.txt.gz
 GSE131617_subject_info.xlsx
 ```
 
-若实际文件名不同，在配置中填写对应路径。表达特征映射和通路分析还需要 HuEx 平台注释包，安装方式见下文。
+Update the configuration if the downloaded filenames differ. Feature mapping also requires the HuEx annotation package listed below.
 
-保留 `data/contracts/` 中的字典文件。不要用其他版本的注释文件直接替换后，仍将结果视为同一次分析。
+Keep the dictionaries in `data/contracts/`. Changing annotation versions can change feature mapping, pathway membership, and results.
 
-## 软件环境
+## Software
 
-既有分析记录使用 Python 3.12.13 和 statsmodels 0.14.6。当前 Python 依赖文件采用版本范围；如需精确复现，应保留实际运行环境的包版本。
-
-在所用 Python 环境中安装依赖：
+The analysis records specify Python 3.12.13 and statsmodels 0.14.6. `requirements.txt` uses version ranges rather than a complete environment lock; save the installed package versions with each run.
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-R 核心环境如下：
+The R workflow uses the following core versions:
 
-| 组件 | 版本 |
+| Component | Version |
 |---|---|
 | R | 4.4.2 |
 | Bioconductor | 3.20 |
@@ -75,104 +79,103 @@ R 核心环境如下：
 | GO.db | 3.20.0 |
 | huex10sttranscriptcluster.db | 8.8.0 |
 
-此外需要 yaml、readxl、DBI、RSQLite 及 limma 相关依赖。使用 R 4.4.2 的 `Rscript`，在仓库根目录执行：
+Other dependencies include yaml, readxl, DBI, RSQLite, and dependencies used by limma. From the repository root, use the `Rscript` executable for R 4.4.2:
 
 ```bash
 Rscript scripts/install_r_packages.R
 Rscript scripts/check_r_environment.R
 ```
 
-安装脚本仅在准备环境时使用。核心版本不匹配时，检查脚本会停止并列出差异。完整分析入口会检查包是否可加载，但不会替代这一步精确版本检查。
+Run the installer when preparing the environment. The version check stops if a checked core version differs. The full-workflow launcher checks package availability but does not replace this exact-version check.
 
-## 配置
+## Configuration
 
-以下命令均从仓库根目录运行。首次使用时复制配置模板：
+Run the commands below from the repository root. Create a local configuration:
 
 ```bash
 cp config/project.example.yaml config/project.yaml
 ```
 
-检查 `config/project.yaml` 中的数据路径和 `runtime.rscript`。相对数据路径默认以项目根目录为基准；数据位于其他位置时，也可以填写绝对路径。
+Check the data paths and `runtime.rscript` in `config/project.yaml`. Relative input paths are resolved from the project root; absolute paths can be used for data stored elsewhere. Do not commit the local configuration.
 
-`config/project.yaml` 是本地配置，不应提交到仓库。
+## Run the full workflow
 
-## 运行全部分析
-
-在已安装依赖的 Python 环境中执行：
+Activate the Python environment containing the dependencies, then run:
 
 ```bash
-export RSCRIPT=/实际安装位置/bin/Rscript
+export RSCRIPT=/path/to/R-4.4.2/bin/Rscript
 bash run_analysis.sh
 ```
 
-将 `RSCRIPT` 替换为 R 4.4.2 的实际可执行文件路径。启动脚本默认调用 `python3`；需要更换时可设置 `PYTHON` 环境变量。
+Replace the example path with the actual R 4.4.2 executable. The launcher uses `python3` by default; set the `PYTHON` environment variable to use another executable.
 
-脚本先检查输入，再运行全部分析。默认使用 2,000 次参与者 bootstrap、1,000 次随访加权 bootstrap，随机种子为 `20260915`。结果写入新的时间戳目录：
+The launcher checks the inputs and runs the analyses with 2,000 participant bootstrap replicates, 1,000 follow-up-weighting bootstrap replicates, and random seed `20260915`. Results are written to a new timestamped directory:
 
 ```text
 results/paper_run_YYYYMMDD_HHMMSS/
 ```
 
-也可以直接指定运行参数：
+To set the output directory and parameters explicitly:
 
 ```bash
 python scripts/run_paper.py \
   --project-root . \
   --output-dir results/paper_run_v3_01 \
-  --rscript /实际安装位置/bin/Rscript \
+  --rscript /path/to/R-4.4.2/bin/Rscript \
   --bootstrap 2000 \
   --selection-bootstrap 1000 \
   --seed 20260915
 ```
 
-输出目录必须是新目录或空目录。重复运行时更换目录名，避免混入上一轮结果。添加 `--dry-run` 可检查输入并打印执行命令，不拟合模型；该模式不完成 R 包检查。
+Use a new or empty output directory for each run. Add `--dry-run` to check inputs and print the commands without fitting models. This mode does not complete the R package checks.
 
-## 各部分分析
+## Scripts
 
-| 脚本 | 作用 |
+| Script | Purpose |
 |---|---|
-| `prepare_adni.py` | 整理 ADNI 原始表，构建 PET 时间对齐主表 |
-| `analyze_adni.py`、`adni_models.py` | 原始 A/T 横断面模型、FDG、APOE 及敏感性分析 |
-| `cross_sectional.py` | A+T+ 对 A+T− 的直接比较和 A+ 内连续 tau 分析 |
-| `tau_sensitivity.py`、`spline_stability.py` | 非线性、影响点和样条曲线稳定性分析 |
-| `longitudinal.py` | A+ 人群 tau 与后续 CDR-SB 变化的探索性分析 |
-| `clinical_tables.py` | 临床基线、纵向队列及有无随访者的描述与比较 |
-| `longitudinal_sensitivity.py` | 参与者重抽样、日历机会和结局模型敏感性分析 |
-| `selection_sensitivity.py` | 随访可获得性加权、权重和平衡度，以及全流程 bootstrap |
-| `stage_sensitivity.py` | 临床阶段调整和 Gaussian/fractional-logit 模型比较 |
-| `prepare_gse131617.R` | 整理表达矩阵、特征注释及供者信息 |
-| `analyze_gse131617.R` | 供者分块差异表达及逐脑区删除分析 |
-| `prepare_pathway_expression.R` | 构建 Entrez 基因级通路分析矩阵 |
-| `analyze_pathways.R` | GO 排名通路分析及脑区方向一致性检查 |
-| `summarize_uty_sensitivity.R` | 供者性别构成及排除 UTY 后的基因清单汇总 |
-| `go_submission_policy.py` | GO 报告条目的统一筛选 |
-| `compile_results_tables.py` | 整理原始模型的论文来源表，提供临床表专用入口 |
-| `run_additional.py` | 按顺序运行补充临床分析 |
-| `run_paper.py` | 调度完整流程 |
-| `collect_paper_results.py` | 汇总图表来源文件并打包 |
+| `prepare_adni.py` | Prepare ADNI input tables and the PET-aligned analysis dataset |
+| `analyze_adni.py`, `adni_models.py` | Fit the original A/T cross-sectional, FDG, APOE, and sensitivity models |
+| `cross_sectional.py` | Estimate direct A+T+ versus A+T− contrasts and continuous-tau associations within A+ participants |
+| `tau_sensitivity.py`, `spline_stability.py` | Examine nonlinearity, influential observations, and spline stability |
+| `longitudinal.py` | Analyze tau burden and subsequent CDR-SB change in A+ participants |
+| `clinical_tables.py` | Summarize baseline characteristics, longitudinal cohorts, and follow-up availability |
+| `longitudinal_sensitivity.py` | Run participant resampling, calendar-opportunity checks, and outcome-model sensitivity analyses |
+| `selection_sensitivity.py` | Estimate follow-up-availability weights, assess balance, and bootstrap the weighting workflow |
+| `stage_sensitivity.py` | Adjust for clinical stage and compare Gaussian and fractional-logit models |
+| `prepare_gse131617.R` | Prepare expression data, feature annotation, and donor information |
+| `analyze_gse131617.R` | Fit donor-blocked differential-expression and leave-one-region-out models |
+| `prepare_pathway_expression.R` | Construct the Entrez gene-level matrix for pathway analysis |
+| `analyze_pathways.R` | Run ranked GO analyses and assess directional agreement across region deletions |
+| `summarize_uty_sensitivity.R` | Summarize donor sex composition and the gene list after excluding UTY |
+| `go_submission_policy.py` | Apply the GO reporting rules |
+| `compile_results_tables.py` | Compile original-analysis source tables and provide the clinical-only entry point |
+| `run_additional.py` | Run the additional clinical analyses in sequence |
+| `run_paper.py` | Run the complete workflow |
+| `collect_paper_results.py` | Collect manuscript source tables and create the results archive |
+| `install_r_packages.R`, `check_r_environment.R` | Install R dependencies and check core versions |
 
-UTY 脚本不重新拟合男性亚组模型。GO 报告中排除废弃条目 `GO:0090309` 时，不重新计算原检验集合的 FDR。
+The UTY summary is a gene-list check, not a male-only model refit. Excluding obsolete term `GO:0090309` from the reported GO list does not recalculate FDR for the original test family.
 
-## 结果位置
+## Outputs
 
-完整运行目录内的主要结果为：
+The full run directory contains:
 
-| 相对位置 | 内容 |
+| Relative path | Contents |
 |---|---|
-| `results/adni/` | 原始 ADNI 模型估计和样本量 |
-| `results/gse131617/` | 特征级差异表达及脑区敏感性结果 |
-| `results/pathways/` | 全部通路检验及筛选后的条目 |
-| `results/gse_sensitivity/` | 供者性别及 UTY 汇总 |
-| `results/manuscript_tables/` | 原始分析的紧凑来源表 |
-| `results/extensions/` | 补充横断面、纵向、加权和临床阶段分析 |
-| `paper_results/` | 论文图表相关来源表及对应清单 |
-| `paper_results.zip` | 汇总结果压缩包 |
+| `results/adni/` | Original ADNI model estimates and sample sizes |
+| `results/gse131617/` | Feature-level differential expression and region-sensitivity results |
+| `results/pathways/` | Pathway tests and reported terms |
+| `results/gse_sensitivity/` | Donor sex and UTY summaries |
+| `results/manuscript_tables/` | Compact source tables for the original analyses |
+| `results/extensions/` | Additional cross-sectional, longitudinal, weighting, and clinical-stage analyses |
+| `paper_results/` | Collected manuscript source tables and their mapping |
+| `paper_results.zip` | Archive of the collected results |
 
-`paper_results/paper_table_sources.csv` 记录论文项目与来源文件的对应关系。当前汇总包含 59 个来源 CSV，包括完整 S2、供者年龄汇总，以及全部基线合格者的随访概率范围。
+`paper_results/paper_table_sources.csv` maps manuscript items to source files. The current collection contains 59 source CSV files, including the full feature-level S2 file, donor age summaries, and follow-up-probability summaries for the baseline-eligible cohort.
 
-CSV 文件名中沿用的表号不一定等于最终论文表号，应按清单和分析名称选取结果。加权模型的 GEE 区间与全流程 bootstrap 区间分别保存，不能相互替代。
+Some source filenames retain earlier table numbers. Use the mapping file and analysis names to identify the corresponding final manuscript tables. Weighted GEE confidence intervals and full-workflow bootstrap intervals are saved separately and should not be interchanged. Fractional-logit standardized changes are time-specific contrasts, not constant annual slopes.
 
-如分析已经完成，只需重新汇总：
+To collect results from a completed run without refitting models:
 
 ```bash
 python scripts/collect_paper_results.py \
@@ -180,6 +183,12 @@ python scripts/collect_paper_results.py \
   --output-dir results/paper_run_v3_01/paper_results_new
 ```
 
-`--run-dir` 指向包含 `data/`、`results/` 的完整运行目录，不是解压后的分享结果包。新输出目录和同名 ZIP 不应与已有结果冲突。
+`--run-dir` must point to the full run directory containing `data/` and `results/`, not an extracted results-sharing archive. Choose an output path that does not conflict with an existing collection or ZIP file.
 
+## Data sharing and license
 
+Do not upload ADNI downloads, participant-level derived tables, local configuration files, virtual environments, or the full run directory. The full run directory contains restricted inputs and derivatives.
+
+The collector limits its output to listed files and checks for explicit participant-identifier columns. Review the files against the applicable data-use agreement before sharing them; this check is not a substitute for that review. GSE131617 remains available through GEO. ADNI data use and acknowledgements must follow the ADNI requirements.
+
+The code is distributed under the MIT license; see `LICENSE`. This software license does not grant rights to redistribute third-party data.

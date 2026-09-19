@@ -1,0 +1,3 @@
+﻿method,n_requested,n_valid,reference_beta,min_beta,max_beta,median_beta,max_absolute_change,max_relative_change,sign_reversal_count,note,bootstrap_se,percentile_ci_low,percentile_ci_high,fraction_positive
+leave_one_participant_out,223,223,0.12603940001271804,0.10708642638695057,0.14208130050590642,0.12600654485135854,0.018952973625767477,0.1503734040613889,0,diagnostic only; no participants removed from primary model,,,,
+participant_pairs_bootstrap,2000,2000,0.12603940001271804,,,,,,,percentile interval; fraction_positive is NOT a p-value; unstratified clusters,0.03439619771248148,0.06527208470485447,0.19817340985244206,1.0
