@@ -17,7 +17,7 @@ run_analysis.sh              Linux 完整运行入口
 LICENSE                      代码许可证
 ```
 
-全部 Python 和 R 分析脚本放在一级 `scripts/` 目录。V3 代码更新包需要与原项目中的数据和 `data/contracts/` 配合使用。
+全部 Python 和 R 分析脚本放在一级 `scripts/` 目录。
 
 ## 数据准备
 
