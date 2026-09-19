@@ -1,0 +1,36 @@
+go_id,term_name,full_direction,n_genes,full_fdr
+GO:0030593,neutrophil chemotaxis,Down,47,0.000214786553131
+GO:0042776,proton motive force-driven mitochondrial ATP synthesis,Down,43,0.0016258710842303
+GO:0071222,cellular response to lipopolysaccharide,Down,137,0.0016258710842303
+GO:0034341,response to type II interferon,Down,26,0.002560306153759
+GO:0060333,type II interferon-mediated signaling pathway,Down,10,0.002560306153759
+GO:0002230,positive regulation of defense response to virus by host,Down,24,0.0026233530555087
+GO:0009060,aerobic respiration,Down,49,0.0081886986473035
+GO:0050729,positive regulation of inflammatory response,Down,81,0.0081886986473035
+GO:0071816,tail-anchored membrane protein insertion into ER membrane,Down,16,0.0082790650879292
+GO:0032543,mitochondrial translation,Down,81,0.0123336145584127
+GO:0032757,positive regulation of interleukin-8 production,Down,56,0.0128399409560423
+GO:0032481,positive regulation of type I interferon production,Down,30,0.0136179735384201
+GO:0032981,mitochondrial respiratory chain complex I assembly,Down,50,0.0136179735384201
+GO:0042742,defense response to bacterium,Down,101,0.0139194419622865
+GO:0032755,positive regulation of interleukin-6 production,Down,82,0.0174298087386948
+GO:0034097,response to cytokine,Down,42,0.0192345095317844
+GO:0002862,negative regulation of inflammatory response to antigenic stimulus,Down,22,0.0207532147571267
+GO:0042832,defense response to protozoan,Down,20,0.0207532147571267
+GO:0002639,positive regulation of immunoglobulin production,Down,24,0.0217915712285705
+GO:0042102,positive regulation of T cell proliferation,Down,53,0.0217915712285705
+GO:2000114,regulation of establishment of cell polarity,Up,13,0.0217915712285705
+GO:0050832,defense response to fungus,Down,24,0.0270145939490913
+GO:0050766,positive regulation of phagocytosis,Down,36,0.0288084843836078
+GO:0006120,"mitochondrial electron transport, NADH to ubiquinone",Down,32,0.0293392668840143
+GO:0032760,positive regulation of tumor necrosis factor production,Down,79,0.0293392668840143
+GO:0048024,"regulation of mRNA splicing, via spliceosome",Up,13,0.0317107555008601
+GO:0032731,positive regulation of interleukin-1 beta production,Down,47,0.0396413591031657
+GO:0032733,positive regulation of interleukin-10 production,Down,32,0.0396640818223414
+GO:0034063,stress granule assembly,Up,19,0.0396640818223414
+GO:0043032,positive regulation of macrophage activation,Down,16,0.0396640818223414
+GO:0061844,antimicrobial humoral immune response mediated by antimicrobial peptide,Down,90,0.0396640818223414
+GO:0001774,microglial cell activation,Down,23,0.0435459523606297
+GO:0019221,cytokine-mediated signaling pathway,Down,112,0.0435634366203078
+GO:0006955,immune response,Down,272,0.0460459441600216
+GO:0150104,transport across blood-brain barrier,Up,76,0.0460459441600216
