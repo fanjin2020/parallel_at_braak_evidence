@@ -1,4 +1,0 @@
-﻿diagnosis,n_people,tau_min,tau_max,tau_p05,tau_p95,overall_tau_q25,overall_tau_q75,q25_outside_stage_p05_p95,q75_outside_stage_p05_p95
-CN,77,1.03,2.165,1.057,1.5678,1.2165,1.634,False,True
-Dementia,51,1.103,3.833,1.2559999999999998,2.5789999999999997,1.2165,1.634,True,False
-MCI,95,0.991,2.633,1.1199999999999999,2.1356,1.2165,1.634,False,False
