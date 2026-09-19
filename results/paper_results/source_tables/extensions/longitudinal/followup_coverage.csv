@@ -1,0 +1,9 @@
+﻿analysis,stage,n,baseline_after_pet,one_followup,two_or_more_followups
+primary_Aplus_180d,A+T-,108,3,61,47
+primary_Aplus_180d,A+T+,115,2,63,52
+sensitivity_prePET_baseline,A+T-,105,0,59,46
+sensitivity_prePET_baseline,A+T+,113,0,62,51
+sensitivity_90d,A+T-,88,3,53,35
+sensitivity_90d,A+T+,97,2,54,43
+sensitivity_2_followups,A+T-,47,1,0,47
+sensitivity_2_followups,A+T+,52,1,0,52
