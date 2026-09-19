@@ -1,20 +1,6 @@
+# Prepare expression, annotation and donor data for GSE131617.
 #!/usr/bin/env Rscript
 
-# =============================================================================
-# GSE131617 原始数据准备 / Prepare canonical GSE131617 analysis inputs
-# =============================================================================
-#
-# 中文：本脚本只做一件事：把 GEO 原始 series matrix 与作者补充表转换为后续
-# 差异表达分析唯一使用的四个标准输入文件。它不做差异表达、富集、图形、审计。
-#
-# English: This script converts the raw GEO series matrix and the accompanying
-# donor spreadsheet into the four canonical inputs required for the downstream
-# differential-expression analysis. It does not run models, enrichment, plots,
-# audits, or create any historical/legacy output.
-#
-# Annotation is obtained from huex10sttranscriptcluster.db. GPL5175.annot.gz is
-# deliberately NOT required because that GEO download endpoint is unreliable.
-# =============================================================================
 
 options(stringsAsFactors = FALSE)
 
@@ -95,7 +81,6 @@ build_annotation <- function(feature_ids, database) {
   annotation
 }
 
-# ---- Read configuration and validate prerequisites --------------------------------
 config_file <- normalizePath(argument_value("--config"), mustWork = TRUE)
 root <- dirname(dirname(config_file))
 need_package("yaml")
@@ -112,7 +97,6 @@ manifest_file <- configured_path(config, root, "gse_manifest", "data/public/gse1
 
 for (file in c(matrix_file, subject_file)) if (!file.exists(file)) stop_with(paste("Missing required GSE input:", file))
 
-# ---- Read the already processed GEO expression values (no re-normalisation) -------
 connection <- gzfile(matrix_file, open = "rt")
 on.exit(close(connection), add = TRUE)
 series <- utils::read.delim(connection, header = TRUE, sep = "\t", quote = "\"", comment.char = "!", check.names = FALSE)
@@ -129,17 +113,13 @@ storage.mode(values) <- "double"
 if (anyNA(values) || any(!is.finite(values))) stop_with("Expression matrix contains missing or non-finite values.")
 rownames(values) <- feature_ids
 
-# Output 1: full feature-level matrix for the primary differential-expression model.
 write_csv_gz(data.frame(feature_id = feature_ids, values, check.names = FALSE), feature_expression_file)
 
-# Output 2: one mapping-status record for every feature.
 chip_database <- get("huex10sttranscriptcluster.db", envir = asNamespace("huex10sttranscriptcluster.db"))
 annotation <- build_annotation(feature_ids, chip_database)
 dir.create(dirname(annotation_file), recursive = TRUE, showWarnings = FALSE)
 utils::write.csv(annotation, annotation_file, row.names = FALSE, na = "")
 
-# Output 3: one representative feature per uniquely mapped Entrez identifier.
-# Selection uses overall mean expression only; it never uses Braak effect size, P, or FDR.
 unique_map <- annotation[annotation$mapping_status == "unique_entrez_id", c("feature_id", "entrez_id")]
 unique_map$mean_expression <- rowMeans(values[unique_map$feature_id, , drop = FALSE])
 unique_map <- unique_map[order(unique_map$entrez_id, -unique_map$mean_expression, unique_map$feature_id), ]
@@ -147,7 +127,6 @@ representative <- unique_map[!duplicated(unique_map$entrez_id), ]
 if (anyDuplicated(representative$entrez_id)) stop_with("Entrez representative selection failed.")
 write_csv_gz(data.frame(entrez_id = representative$entrez_id, values[representative$feature_id, , drop = FALSE], check.names = FALSE), entrez_expression_file)
 
-# ---- Build donor-level manifest from Supplementary Table S8 ------------------------
 header <- readxl::read_excel(subject_file, sheet = 1, range = "D4:K5", col_names = FALSE, .name_repair = "minimal")
 required_header_terms <- c("Subject ID", "Gender", "NFT", "SP", "APOE", "AAD", "PMI")
 if (any(!vapply(required_header_terms, grepl, logical(1), x = paste(unlist(header), collapse = " | "), fixed = TRUE))) stop_with("Unexpected S8 donor-table header in D4:K5.")

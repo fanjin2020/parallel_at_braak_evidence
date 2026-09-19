@@ -1,19 +1,5 @@
+# Estimate GO pathway associations and regional direction consistency.
 #!/usr/bin/env Rscript
-
-# GO biological-process ranked-pathway analysis
-# -----------------------------------------------------------------------------
-# 中文：
-# 本脚本对固定的 14,894 Entrez 基因背景进行 GO biological-process CAMERA-PR 分析。
-# 模型、协变量及留一脑区方向核验与主基因分析一致。一个通路必须同时满足：
-# 全模型 FDR < 0.05，且留出 EC、FC、TC 后的上/下调方向均一致，才称为方向稳定。
-# 输出完整通路结果和最终稳定通路表；不会改动 17 个稳健基因结果。
-#
-# English:
-# This script performs CAMERA-PR on the fixed Entrez universe. A GO biological
-# process is retained only when full-model FDR is below 0.05 and the direction
-# agrees in all three leave-one-region-out analyses. It does not alter the
-# feature-level robust-gene analysis.
-# -----------------------------------------------------------------------------
 
 options(stringsAsFactors = FALSE)
 
@@ -37,8 +23,6 @@ configured_path <- function(config, root, name, default) {
   file.path(root, value)
 }
 
-# Fit the same donor-blocked model used for feature-level differential expression,
-# then convert moderated t statistics to limma z scores for CAMERA-PR.
 fit_z_scores <- function(expression, manifest) {
   design <- stats::model.matrix(
     ~ 0 + braak_stage + brain_region + age_at_death + sex_male + pmi_hours + apoe4_carrier,
@@ -133,7 +117,6 @@ names(full)[names(full) == "Direction"] <- "full_direction"
 names(full)[names(full) == "PValue"] <- "full_p_value"
 names(full)[names(full) == "FDR"] <- "full_fdr"
 
-# Direction-only leave-one-region-out checks: they are not separate FDR screens.
 for (region in levels(manifest$brain_region)) {
   keep <- manifest$brain_region != region
   leave_out <- run_camera(
@@ -150,6 +133,9 @@ full$directionally_stable <- with(full,
 )
 full <- full[order(full$full_fdr, full$go_id), , drop = FALSE]
 stable <- full[full$directionally_stable, , drop = FALSE]
+
+# Exclude the obsolete term after BH correction; retain the original testing family.
+stable <- stable[!stable$go_id %in% "GO:0090309", , drop = FALSE]
 
 utils::write.csv(full, file.path(results_dir, "ranked_pathways.csv"), row.names = FALSE)
 utils::write.csv(stable, file.path(results_dir, "stable_pathways.csv"), row.names = FALSE)

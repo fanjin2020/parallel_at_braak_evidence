@@ -1,20 +1,5 @@
-#!/usr/bin/env Rscript
-
-# GSE131617 主差异表达复现（Braak V–VI vs Braak 0）
-# -----------------------------------------------------------------------------
-# 中文：
-# 本脚本只完成论文的死后转录组主分析：
-# 1. 在 22,011 个 HuEx feature 层面拟合 donor-blocked limma 模型；
-# 2. 将 Braak V–VI 与 Braak 0 比较，并校正脑区、死亡年龄、性别、PMI、APOE ε4；
-# 3. 对 EC、FC、TC 各做一次留一脑区分析；
-# 4. 仅保留 feature 层面 FDR < 0.05、唯一 Entrez 映射、且四次分析方向一致的基因。
-#
-# English:
-# This script reproduces only the primary post-mortem transcriptomic analysis.
-# It fits a donor-blocked limma model for Braak V–VI versus Braak 0, then
-# retains genes meeting the pre-specified FDR, unique-Entrez, and directional
-# consistency criteria. Pathway analysis is intentionally performed elsewhere.
-# -----------------------------------------------------------------------------
+# Fit donor-blocked late-Braak differential-expression models.
+#!/usr/bin/env Rscript 
 
 options(stringsAsFactors = FALSE)
 
@@ -31,7 +16,6 @@ require_package <- function(package) {
   if (!requireNamespace(package, quietly = TRUE)) stop_with(paste("Missing R package:", package))
 }
 
-# Read a project-relative path from YAML; use the stated default when absent.
 configured_path <- function(config, root, name, default) {
   value <- config$paths[[name]]
   if (is.null(value) || length(value) != 1L || is.na(value) || !nzchar(value)) value <- default
@@ -39,7 +23,6 @@ configured_path <- function(config, root, name, default) {
   file.path(root, value)
 }
 
-# Fit the same model to the full data or to one leave-one-region-out subset.
 fit_braak_model <- function(expression, manifest) {
   design <- stats::model.matrix(
     ~ 0 + braak_stage + brain_region + age_at_death + sex_male + pmi_hours + apoe4_carrier,
@@ -66,7 +49,6 @@ fit_braak_model <- function(expression, manifest) {
   )
 }
 
-# Select exactly one feature per Entrez ID without using leave-one-region P values.
 select_representatives <- function(primary, annotation, alpha) {
   merged <- merge(primary, annotation, by = "feature_id", all.x = TRUE, sort = FALSE)
   if (nrow(merged) != nrow(primary)) stop_with("Annotation changed the number of features.")
@@ -105,7 +87,6 @@ for (file in c(expression_file, annotation_file, manifest_file)) {
 }
 dir.create(results_dir, recursive = TRUE, showWarnings = FALSE)
 
-# Inputs: expression is feature x sample; manifest is one row per cortical sample.
 expression_table <- utils::read.csv(gzfile(expression_file), check.names = FALSE)
 if (names(expression_table)[1L] != "feature_id" || anyDuplicated(expression_table$feature_id)) {
   stop_with("Expression table must begin with unique feature_id values.")
@@ -122,17 +103,14 @@ if (length(setdiff(needed, names(manifest))) > 0L) stop_with("Sample manifest la
 if (!setequal(colnames(expression), manifest$sample_id)) stop_with("Expression and manifest sample IDs do not match.")
 manifest <- manifest[match(colnames(expression), manifest$sample_id), , drop = FALSE]
 
-# The factor order reproduces the manuscript contrast and region sensitivity analyses.
 manifest$braak_stage <- factor(manifest$braak_stage, levels = c("0", "I-II", "III-IV", "V-VI"))
 manifest$brain_region <- factor(manifest$brain_region, levels = c("EC", "FC", "TC"))
 manifest$donor_key <- factor(manifest$donor_key)
 for (column in c("age_at_death", "sex_male", "pmi_hours", "apoe4_carrier")) manifest[[column]] <- as.numeric(manifest[[column]])
 if (anyNA(manifest[, c("age_at_death", "sex_male", "pmi_hours", "apoe4_carrier")])) stop_with("Manifest covariates contain missing values.")
 
-# 1) Full three-region model.
 primary <- fit_braak_model(expression, manifest)
 
-# 2) Direction check: leave out one region at a time. These are not new FDR screens.
 regional <- list()
 for (region in levels(manifest$brain_region)) {
   keep <- manifest$brain_region != region
@@ -148,7 +126,6 @@ sensitivity$direction_robust <- with(sensitivity,
     sign(log2_fold_change) == sign(log2_fold_change_leave_out_TC)
 )
 
-# 3) Apply the manuscript gene rule: full-model FDR, unique mapping, same direction.
 representatives <- select_representatives(primary, annotation, alpha)
 representatives <- merge(representatives,
   sensitivity[, c("feature_id", "log2_fold_change_leave_out_EC", "log2_fold_change_leave_out_FC",
@@ -157,7 +134,6 @@ representatives <- merge(representatives,
 )
 robust_genes <- representatives[representatives$direction_robust %in% TRUE, , drop = FALSE]
 
-# Four transparent outputs: full feature statistics, leave-out effects, candidate genes, final robust genes.
 utils::write.csv(primary, file.path(results_dir, "braak_feature_results.csv"), row.names = FALSE)
 utils::write.csv(sensitivity, file.path(results_dir, "braak_region_sensitivity.csv"), row.names = FALSE)
 utils::write.csv(representatives, file.path(results_dir, "braak_representative_genes.csv"), row.names = FALSE)

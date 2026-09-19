@@ -1,20 +1,6 @@
 #!/usr/bin/env python3
-"""Run every ADNI analysis reported in the manuscript from the prepared master table.
+'Fit the primary ADNI models and their sensitivity analyses.'
 
-中文说明：
-本脚本只使用 prepare_adni.py 生成的 adni_pet_aligned_master.csv，不再读取原始
-ADNI 文件。它在一个文件中完成论文报告的全部 ADNI 统计分析：180 天主分析、
-90 天窗口敏感性分析、FDG 探索性分析、APOE ε4 交互/分层、影响点删除分析，
-以及 CDR-SB 的 Huber 回归与分组 bootstrap。
-
-为避免不必要的审计文件和受试者级数据输出，本脚本只写出两个聚合结果文件：
-  results/adni/adni_results.csv       所有模型的效应量和检验结果
-  results/adni/adni_model_counts.csv  每个模型实际使用的人数及敏感性摘要
-
-The script intentionally produces no RID-level diagnostics, no frozen/legacy files,
-and no intermediate tables.  The published 90-day analysis constrains BOTH the
-amyloid--tau pairing and the outcome--tau distance to 90 days.
-"""
 from __future__ import annotations
 
 import argparse
@@ -29,11 +15,9 @@ import yaml
 from scipy.stats import norm
 from statsmodels.stats.multitest import multipletests
 
-
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(ROOT / "src"))
 
-from paper2.adni_models import (  # noqa: E402
+from adni_models import (
     COVARIATES,
     STAGES,
     fit_apoe_interaction,
@@ -41,13 +25,11 @@ from paper2.adni_models import (  # noqa: E402
     fit_stage_model,
 )
 
-
 OUTCOME_DAYS = {
     "hippocampus_icv": "hippocampus_icv_days_from_tau",
     "cdrsb": "cdrsb_days_from_tau",
     "fdg_metaroi": "fdg_metaroi_days_from_tau",
 }
-
 
 def arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
@@ -58,12 +40,10 @@ def arguments() -> argparse.Namespace:
                         help="Random seed for the Huber bootstrap (default: 20260715)")
     return parser.parse_args()
 
-
 def resolve(root: Path, configured_path: str) -> Path:
     """Allow either an absolute path or a project-relative YAML path."""
     path = Path(configured_path)
     return path if path.is_absolute() else root / path
-
 
 def apply_bh(table: pd.DataFrame, family: str) -> pd.DataFrame:
     """Apply BH adjustment to one explicitly declared family of P values."""
@@ -71,7 +51,6 @@ def apply_bh(table: pd.DataFrame, family: str) -> pd.DataFrame:
     table["fdr_bh"] = multipletests(table["p_value"], method="fdr_bh")[1]
     table["fdr_family"] = family
     return table
-
 
 def analysis_table(master: pd.DataFrame, outcome: str, window_days: int) -> pd.DataFrame:
     """Return the exact complete-case records for one outcome/window model.
@@ -96,7 +75,6 @@ def analysis_table(master: pd.DataFrame, outcome: str, window_days: int) -> pd.D
     table["at_stage"] = pd.Categorical(table["at_stage"], categories=STAGES)
     return table
 
-
 def stage_counts(table: pd.DataFrame, analysis: str, outcome: str,
                  window_days: int, n_removed: int = 0) -> list[dict]:
     """Make transparent aggregate sample counts; never export RID-level rows."""
@@ -118,7 +96,6 @@ def stage_counts(table: pd.DataFrame, analysis: str, outcome: str,
     })
     return rows
 
-
 def add_analysis(table: pd.DataFrame, analysis: str, family: str | None = None) -> pd.DataFrame:
     """Standardise columns from the compact modelling helpers."""
     table = table.copy()
@@ -127,14 +104,11 @@ def add_analysis(table: pd.DataFrame, analysis: str, family: str | None = None) 
         table["fdr_family"] = family
     return table
 
-
 def formula(outcome: str) -> str:
     return f"{outcome} ~ C(at_stage, Treatment(reference='A-T-')) + " + " + ".join(COVARIATES)
 
-
 def stage_term(parameter_names: list[str], stage: str) -> str:
     return next(name for name in parameter_names if f"[T.{stage}]" in name)
-
 
 def influence_sensitivity(master: pd.DataFrame, outcome: str, window_days: int) -> tuple[pd.DataFrame, pd.DataFrame, list[dict]]:
     """Refit after removing observations flagged by the manuscript's fixed rule.
@@ -153,7 +127,7 @@ def influence_sensitivity(master: pd.DataFrame, outcome: str, window_days: int) 
         | (diagnostic["student_resid"].abs() > 3)
     )
     reduced = table.loc[~flagged].copy()
-    # fit_stage_model applies the same outcome/covariate completeness checks again.
+
     effects = fit_stage_model(reduced, outcome, "influence", OUTCOME_DAYS[outcome], window_days)
     effects = add_analysis(effects, "influence_sensitivity")
     effects["n_removed"] = int(flagged.sum())
@@ -168,13 +142,8 @@ def influence_sensitivity(master: pd.DataFrame, outcome: str, window_days: int) 
     }])
     return effects, summary, stage_counts(reduced, "influence_sensitivity", outcome, window_days, int(flagged.sum()))
 
-
 def huber_design(table: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray, np.ndarray, list[str]]:
-    """Construct the historical fixed-column Huber design matrix.
-
-    The explicit RID ordering is essential: with a fixed random seed it gives
-    exactly the same within-stage bootstrap draws as the frozen analysis.
-    """
+    'Build a fixed-column design, sorting participant IDs for reproducible resampling.'
     ordered = table.sort_values("rid", key=lambda value: value.astype(str)).reset_index(drop=True).copy()
     stage = ordered["at_stage"].astype(str)
     columns = ["Intercept", "A+T-", "A+T+", "age_at_tau", "sex_male", "education_years", "apoe4_carrier"]
@@ -189,19 +158,17 @@ def huber_design(table: pd.DataFrame) -> tuple[pd.DataFrame, np.ndarray, np.ndar
     ])
     return ordered, matrix, ordered["cdrsb"].to_numpy(float), columns
 
-
 def robust_scale(residual: np.ndarray) -> float:
-    """MAD scale rule used in the frozen Huber IRLS implementation."""
+    'MAD scale rule used in the Huber IRLS implementation.'
     median = np.median(residual)
     scale = np.median(np.abs(residual - median)) / 0.6744897501960817
     if not np.isfinite(scale) or scale < 1e-8:
         scale = np.sqrt(np.mean(residual ** 2))
     return float(max(scale, 1e-8))
 
-
 def fit_huber_irls(matrix: np.ndarray, values: np.ndarray,
                    tuning_constant: float = 1.345) -> tuple[np.ndarray, bool]:
-    """Exact historical Huber IRLS rule: 200 iterations and 1e-10 tolerance."""
+    'Exact Huber IRLS rule: 200 iterations and 1e-10 tolerance.'
     beta, _, rank, _ = np.linalg.lstsq(matrix, values, rcond=None)
     if rank < matrix.shape[1]:
         raise RuntimeError("Huber initial design matrix is rank deficient.")
@@ -218,22 +185,15 @@ def fit_huber_irls(matrix: np.ndarray, values: np.ndarray,
         beta = updated
     return beta, False
 
-
 def empirical_two_sided_sign_p(values: np.ndarray) -> float:
-    """Historical empirical sign P value used for the Huber bootstrap summary."""
+    'empirical sign P value used for the Huber bootstrap summary.'
     lower_tail = (float(np.sum(values <= 0.0)) + 1.0) / (len(values) + 1.0)
     upper_tail = (float(np.sum(values >= 0.0)) + 1.0) / (len(values) + 1.0)
     return float(min(1.0, 2.0 * min(lower_tail, upper_tail)))
 
-
 def huber_bootstrap(master: pd.DataFrame, repetitions: int, seed: int,
                     window_days: int) -> tuple[pd.DataFrame, pd.DataFrame]:
-    """Reproduce the frozen CDR-SB Huber/bootstrap procedure without exporting draws.
-
-    The historical procedure used a custom Huber IRLS rather than a package
-    default.  Keeping it here is necessary for exact numerical reproduction;
-    only the final aggregate summary is retained.
-    """
+    'Fit Huber IRLS and estimate uncertainty by within-stage participant bootstrap.'
     ordered, matrix, values, columns = huber_design(analysis_table(master, "cdrsb", window_days))
     beta, converged = fit_huber_irls(matrix, values)
     if not converged:
@@ -287,7 +247,6 @@ def huber_bootstrap(master: pd.DataFrame, repetitions: int, seed: int,
     }])
     return pd.DataFrame(rows), summary
 
-
 def main() -> None:
     args = arguments()
     config_path = Path(args.config).resolve()
@@ -302,7 +261,6 @@ def main() -> None:
     primary_window = int(config["analysis"].get("primary_window_days", 180))
     strict_window = int(config["analysis"].get("sensitivity_window_days", 90))
 
-    # Main models.  The FDR family is explicitly four tests across two outcomes.
     primary_data = master.loc[master["at_pair_days"].between(0, primary_window)].copy()
     primary = pd.concat([
         fit_stage_model(primary_data, outcome, "confirmatory", OUTCOME_DAYS[outcome], primary_window)
@@ -325,7 +283,6 @@ def main() -> None:
     ], ignore_index=True)
     stratified = add_analysis(stratified, "APOE_stratified_display", "display only; no additional FDR family")
 
-    # Strict 90-day sensitivity: require both time distances to be <= 90 days.
     strict_data = master.loc[master["at_pair_days"].between(0, strict_window)].copy()
     strict = pd.concat([
         fit_stage_model(strict_data, outcome, "sensitivity_90day", OUTCOME_DAYS[outcome], strict_window)
@@ -361,7 +318,6 @@ def main() -> None:
     )
     print("ADNI analyses completed:", output_dir)
     print("Aggregate outputs: adni_results.csv and adni_model_counts.csv")
-
 
 if __name__ == "__main__":
     main()

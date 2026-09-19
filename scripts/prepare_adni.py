@@ -1,64 +1,5 @@
 #!/usr/bin/env python3
-# =============================================================================
-# 中文说明
-# -----------------------------------------------------------------------------
-# 脚本名称：prepare_adni.py
-# 作用：从 ADNI 的原始导出 CSV 文件构建以 tau PET 为时间锚点的分析主表。
-#
-# 输入文件（位于 config/project.yaml 的 paths.adni_raw_dir）：
-#   1. UCBERKELEY_AMY_6MM.csv      ：amyloid PET 分类与扫描日期；
-#   2. UCBERKELEY_TAU_6MM.csv      ：flortaucipir tau PET、时间 MetaROI SUVR；
-#   3. UCSFFSX7.csv                ：左右海马体积和颅内容积；
-#   4. CDR.csv                     ：Clinical Dementia Rating Sum of Boxes；
-#   5. APOERES.csv                 ：APOE 基因型；
-#   6. PTDEMOG.csv                 ：出生日期、性别、教育年限；
-#   7. UCBERKELEYFDG_8mm.csv       ：FDG PET MetaROI（探索性结局）。
-#
-# 主要处理规则：
-#   - 仅保留通过质量控制的 amyloid PET 与 FTP tau PET；
-#   - 以 amyloid PET Core 分类确定 A+/A−；
-#   - 以 temporal MetaROI SUVR >= 1.34 确定 T+/T−；
-#   - 在预设窗口内选择 amyloid PET 与 tau PET 最接近的一对扫描；
-#   - 以 tau PET 日期为时间锚点，选择窗口内最接近的 MRI、CDR-SB 和 FDG；
-#   - 相同距离优先选择较早日期；同日记录若数值冲突，则该结局保留缺失；
-#   - hippocampus/ICV = (左海马 + 右海马) / 颅内容积；
-#   - 从 APOE 基因型生成 ε4 携带状态；
-#   - 使用 tau PET 日期计算年龄，并选取最接近 tau PET 的教育年限记录；
-#   - 按三组确认性队列的 hippocampus/ICV 分布标记预定义 MRI 异常值。
-#
-# 输出：
-#   仅生成 paths.adni_master 指定的 adni_pet_aligned_master.csv。
-#   输出表每位参与者仅保留一行，供后续 analyze_adni.py 直接建模。
-#
-# 本脚本不会：
-#   - 输出 RID 级个体诊断、影响点或审计文件；
-#   - 执行回归、FDR 校正、Huber 回归或 bootstrap；
-#   - 将 Braak 转录组结果与 ADNI 个体数据进行匹配或整合。
-# =============================================================================
-#
-# =============================================================================
-# English documentation
-# -----------------------------------------------------------------------------
-# Script: prepare_adni.py
-# Purpose: Build one tau-PET-anchored ADNI master table from the raw ADNI
-#          export files. This table is the direct input for analyze_adni.py.
-#
-# Key rules:
-#   - Amyloid status is taken from the PET Core composite classification.
-#   - Tau positivity is defined as temporal MetaROI SUVR >= 1.34.
-#   - Eligible amyloid and tau scans are paired within the pre-specified window.
-#   - The tau PET scan is the temporal anchor for MRI, CDR-SB, and FDG MetaROI.
-#   - The nearest measurement is selected; ties use the earlier date.
-#   - Conflicting measurements on an otherwise identical selected date are set
-#     to missing rather than resolved arbitrarily.
-#   - Hippocampus/ICV is calculated from bilateral hippocampal volume divided
-#     by intracranial volume.
-#
-# Output:
-#   One participant-level master table at paths.adni_master. No RID-level
-#   diagnostics, audit files, statistical models, or public release files are
-#   created by this preparation script.
-# =============================================================================
+
 
 from __future__ import annotations
 
@@ -69,12 +10,10 @@ import numpy as np
 import pandas as pd
 import yaml
 
-
 def arguments():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", required=True, help="Project YAML file")
     return parser.parse_args()
-
 
 def read_csv(folder: Path, name: str) -> pd.DataFrame:
     path = folder / name
@@ -82,12 +21,10 @@ def read_csv(folder: Path, name: str) -> pd.DataFrame:
         raise FileNotFoundError(f"Missing ADNI export: {path}")
     return pd.read_csv(path, low_memory=False)
 
-
 def need(data: pd.DataFrame, columns: set[str], label: str) -> None:
     missing = sorted(columns.difference(data.columns))
     if missing:
         raise ValueError(f"{label} is missing columns: {', '.join(missing)}")
-
 
 def date(values: pd.Series) -> pd.Series:
     """Accept only complete calendar dates; do not guess incomplete dates."""
@@ -96,7 +33,6 @@ def date(values: pd.Series) -> pd.Series:
     for fmt in ("%Y-%m-%d", "%m/%d/%Y", "%m/%d/%y", "%Y/%m/%d"):
         out = out.fillna(pd.to_datetime(text, format=fmt, errors="coerce"))
     return out
-
 
 def birth_date(values: pd.Series) -> pd.Series:
     """Convert ADNI DOB encodings to a fixed day solely for age calculation."""
@@ -114,7 +50,6 @@ def birth_date(values: pd.Series) -> pd.Series:
     for fmt in ("%Y-%m-%d", "%m/%d/%Y"):
         out = out.fillna(pd.to_datetime(normal, format=fmt, errors="coerce"))
     return out
-
 
 def closest(pairs: pd.DataFrame, measures: pd.DataFrame, value: str, days: int, signature: list[str]) -> pd.DataFrame:
     """Select the nearest valid measurement; ties use the earlier date.
@@ -139,7 +74,6 @@ def closest(pairs: pd.DataFrame, measures: pd.DataFrame, value: str, days: int, 
     selected = pd.DataFrame(records, columns=["rid", value, f"{value}_days_from_tau"])
     return pairs.merge(selected, on="rid", how="left")
 
-
 def apoe_carrier(raw: pd.DataFrame) -> pd.DataFrame:
     need(raw, {"RID", "GENOTYPE"}, "APOERES.csv")
     x = raw[["RID", "GENOTYPE"]].rename(columns={"RID": "rid", "GENOTYPE": "genotype"}).dropna()
@@ -151,7 +85,6 @@ def apoe_carrier(raw: pd.DataFrame) -> pd.DataFrame:
     x["apoe4_carrier"] = x.genotype.str.contains("4", regex=False).astype(int)
     return x[["rid", "apoe4_carrier"]]
 
-
 def demographics(raw: pd.DataFrame, pairs: pd.DataFrame) -> pd.DataFrame:
     need(raw, {"RID", "PTGENDER", "PTEDUCAT", "PTDOB", "VISDATE"}, "PTDEMOG.csv")
     x = raw[["RID", "PTGENDER", "PTEDUCAT", "PTDOB", "VISDATE"]].rename(columns={"RID": "rid", "VISDATE": "date"})
@@ -160,18 +93,15 @@ def demographics(raw: pd.DataFrame, pairs: pd.DataFrame) -> pd.DataFrame:
     x["sex_male"] = np.select([sex.isin(["M", "MALE", "1"]), sex.isin(["F", "FEMALE", "2"])], [1.0, 0.0], default=np.nan)
     x["education_years"] = pd.to_numeric(x.PTEDUCAT, errors="coerce")
 
-    # Sex and DOB must be internally consistent for a participant.
     dob = x.dropna(subset=["dob"]).loc[lambda d: d.groupby("rid").dob.transform("nunique").eq(1)].drop_duplicates("rid").set_index("rid").dob
     male = x.dropna(subset=["sex_male"]).loc[lambda d: d.groupby("rid").sex_male.transform("nunique").eq(1)].drop_duplicates("rid").set_index("rid").sex_male
 
-    # Education is visit-specific: select the closest date to tau PET.
     out = pairs[["rid", "tau_pet_date"]].merge(x[["rid", "date", "education_years"]], on="rid", how="left")
     out["gap"] = (out.date - out.tau_pet_date).abs().dt.days
     out = out.sort_values(["rid", "gap", "date"], na_position="last").drop_duplicates("rid")
     out["age_at_tau"] = ((out.tau_pet_date - out.rid.map(dob)).dt.days / 365.25).round(4)
     out["sex_male"] = out.rid.map(male)
     return out[["rid", "age_at_tau", "sex_male", "education_years"]]
-
 
 def main():
     args = arguments()
@@ -240,29 +170,6 @@ def main():
     pairs.loc[:, columns].sort_values("rid").to_csv(output, index=False)
     print(f"Prepared ADNI master table: {output}")
 
-
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

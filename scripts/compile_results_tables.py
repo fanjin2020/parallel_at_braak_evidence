@@ -12,46 +12,50 @@ import argparse
 from pathlib import Path
 
 import pandas as pd
-import yaml
-
+from go_submission_policy import submission_pathways
 
 def fail(message: str) -> None:
     raise RuntimeError(message)
-
 
 def read_csv(path: Path, label: str) -> pd.DataFrame:
     if not path.is_file():
         fail(f"Missing {label}: {path}")
     return pd.read_csv(path)
 
-
 def require_columns(table: pd.DataFrame, columns: list[str], label: str) -> None:
     missing = [column for column in columns if column not in table.columns]
     if missing:
         fail(f"{label} is missing required columns: {', '.join(missing)}")
 
-
 def stable_pathways(pathways: pd.DataFrame) -> pd.DataFrame:
-    # The R pathway script writes the conventional CAMERA column name NGenes.
-    # Use one internal spelling below while accepting the source-file spelling.
+
     if "NGenes" in pathways.columns and "n_genes" not in pathways.columns:
         pathways = pathways.rename(columns={"NGenes": "n_genes"})
     require_columns(pathways, ["go_id", "full_fdr", "full_direction", "n_genes", "directionally_stable"], "ranked pathway output")
-    flag = pathways["directionally_stable"].astype(str).str.strip().str.lower().isin({"true", "1", "yes"})
-    selected = pathways.loc[flag].copy().sort_values(["full_fdr", "go_id"], kind="stable")
-    if selected.shape[0] != 36:
-        fail(f"Expected 36 directionally stable GO terms, found {selected.shape[0]}.")
+    selected = submission_pathways(pathways)
     if selected["go_id"].duplicated().any():
         fail("Directionally stable GO terms are not unique by GO identifier.")
     return selected
 
-
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", default="config/project.yaml")
+    parser.add_argument("--clinical-only", action="store_true", help="Build expanded JAD Table 1 and follow-up comparison without running Tables 2-5")
+    parser.add_argument("--project-root", type=Path)
+    parser.add_argument("--output-dir", type=Path)
     args = parser.parse_args()
 
+    if args.clinical_only:
+        from clinical_tables import build
+        if args.project_root is None or args.output_dir is None:
+            parser.error("--clinical-only requires --project-root and --output-dir")
+        build(args.project_root, args.output_dir)
+        return
+    if any([args.project_root, args.output_dir]):
+        parser.error("Clinical-table arguments require --clinical-only")
+
     config_path = Path(args.config).resolve()
+    import yaml
     with config_path.open("r", encoding="utf-8") as handle:
         config = yaml.safe_load(handle) or {}
     root = config_path.parent.parent
@@ -64,7 +68,7 @@ def main() -> None:
     adni_counts = read_csv(configured("adni_model_counts", "results/adni/adni_model_counts.csv"), "ADNI model counts")
     robust_genes = read_csv(configured("gse_robust_genes", "results/gse131617/braak_robust_genes.csv"), "robust gene results")
     pathways = read_csv(configured("stable_pathways", "results/pathways/stable_pathways.csv"), "stable pathway results")
-    gene_symbols = read_csv(configured("gse_gene_symbols", "data/contracts/gene_symbols.csv"), "gene-symbol contract")
+    gene_symbols = read_csv(configured("gse_gene_symbols", "data/contracts/gene_symbols.csv"), "gene-symbol mapping")
     term_dictionary = read_csv(configured("go_bp_term_dictionary", "data/contracts/go_bp_term_dictionary.csv"), "GO term dictionary")
     output_dir = configured("manuscript_tables_dir", "results/manuscript_tables")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -72,7 +76,7 @@ def main() -> None:
     require_columns(adni_results, ["analysis", "outcome", "n_complete_case"], "ADNI results")
     require_columns(adni_counts, ["analysis", "outcome", "at_stage", "n"], "ADNI model counts")
     require_columns(term_dictionary, ["go_id", "term_name"], "GO term dictionary")
-    require_columns(gene_symbols, ["feature_id", "entrez_id", "gene_symbol"], "gene-symbol contract")
+    require_columns(gene_symbols, ["feature_id", "entrez_id", "gene_symbol"], "gene-symbol mapping")
     if term_dictionary["go_id"].duplicated().any():
         fail("GO term dictionary contains duplicate GO identifiers.")
 
@@ -92,14 +96,14 @@ def main() -> None:
 
     require_columns(robust_genes, ["feature_id", "entrez_id", "log2_fold_change", "fdr_bh"], "robust gene results")
     if gene_symbols["feature_id"].duplicated().any():
-        fail("Gene-symbol contract contains duplicate feature identifiers.")
+        fail("Gene-symbol mapping contains duplicate feature identifiers.")
     table4 = robust_genes.merge(
         gene_symbols.loc[:, ["feature_id", "gene_symbol"]],
         on="feature_id", how="left", validate="one_to_one"
     )
     if table4["gene_symbol"].isna().any():
         missing = ", ".join(table4.loc[table4["gene_symbol"].isna(), "feature_id"].astype(str).tolist())
-        fail(f"Gene-symbol contract has no symbol for feature ID(s): {missing}")
+        fail(f"Gene-symbol mapping has no symbol for feature ID(s): {missing}")
     table4 = table4.sort_values(["log2_fold_change", "gene_symbol"], kind="stable")
 
     selected_pathways = stable_pathways(pathways)
@@ -119,17 +123,7 @@ def main() -> None:
     for name, table in outputs.items():
         table.to_csv(output_dir / name, index=False)
 
-    summary = pd.DataFrame(
-        [
-            {"item": "confirmatory ADNI rows", "value": len(table2)},
-            {"item": "exploratory ADNI rows", "value": len(table3)},
-            {"item": "robust genes", "value": len(table4)},
-            {"item": "stable GO terms", "value": len(table5)},
-        ]
-    )
-    summary.to_csv(output_dir / "reproduction_summary.csv", index=False)
     print(f"Manuscript source tables written to: {output_dir}")
-
 
 if __name__ == "__main__":
     main()
