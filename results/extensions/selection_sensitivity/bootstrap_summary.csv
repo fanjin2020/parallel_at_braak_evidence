@@ -1,3 +1,0 @@
-﻿analysis,requested,valid,interval_reportable,ci_low,ci_high
-ipw_untruncated,1000,1000,True,0.06380341554761726,0.19442559720936423
-ipw_truncated_1_99,1000,1000,True,0.06439484957954454,0.19509825238391656

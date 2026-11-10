@@ -1,5 +1,0 @@
-population,outcome,n,tau_boundary_low,tau_knot1,tau_knot2,tau_boundary_high,nonlinear_df,nonlinear_wald_chi2,nonlinear_p,linear_r_squared,spline_r_squared,nonlinear_fdr_bh,fdr_family
-all_eligible,hippocampus_icv,283,1.03,1.261,1.492,2.721,2,8.061850140990828,0.017757895048338586,0.2938509220273694,0.3162727606154019,0.03551579009667717,four nonlinear tests: two outcomes by two age populations
-all_eligible,cdrsb,336,0.991,1.26,1.517,3.833,2,6.645507942937004,0.03605340485914686,0.3231424843963442,0.3333529136394925,0.04807120647886248,four nonlinear tests: two outcomes by two age populations
-age_ge_65,hippocampus_icv,257,1.03,1.259,1.4713333333333332,2.685,2,10.076251093982519,0.006485894435408987,0.25687389027167307,0.2867368441862701,0.02594357774163595,four nonlinear tests: two outcomes by two age populations
-age_ge_65,cdrsb,306,0.991,1.26,1.4906666666666666,3.833,2,3.489454124924503,0.17469266264575187,0.31039198428694026,0.3246649920904878,0.17469266264575187,four nonlinear tests: two outcomes by two age populations
