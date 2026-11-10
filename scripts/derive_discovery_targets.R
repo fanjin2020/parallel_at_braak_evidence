@@ -1,0 +1,16 @@
+#!/usr/bin/env Rscript
+args <- commandArgs(TRUE)
+arg <- function(k) {i <- match(k,args); if(is.na(i))stop('Missing ',k); args[i+1L]}
+root <- arg('--project-root')
+if(!requireNamespace('org.Hs.eg.db',quietly=TRUE)||!requireNamespace('AnnotationDbi',quietly=TRUE))stop('Install org.Hs.eg.db and AnnotationDbi')
+d <- read.csv(file.path(root,'results/gse131617/braak_robust_genes.csv'),colClasses=c(feature_id='character',entrez_id='character'))
+if(!nrow(d)||anyDuplicated(d$entrez_id)||anyDuplicated(d$feature_id))stop('No uniquely mapped discovery targets')
+symbols <- AnnotationDbi::mapIds(org.Hs.eg.db::org.Hs.eg.db,keys=d$entrez_id,column='SYMBOL',keytype='ENTREZID',multiVals='asNA')
+d$gene_symbol <- unname(symbols[d$entrez_id])
+if(anyNA(d$gene_symbol)||any(!nzchar(d$gene_symbol)))stop('A discovery target lacks a unique gene symbol')
+d$discovery_direction <- ifelse(d$log2_fold_change>0,'up','down')
+out <- file.path(root,'data/contracts')
+dir.create(out,recursive=TRUE,showWarnings=FALSE)
+write.csv(d[,c('feature_id','entrez_id','gene_symbol')],file.path(out,'gene_symbols.csv'),row.names=FALSE)
+write.csv(d,file.path(root,'results/gse131617/braak_robust_genes_labeled.csv'),row.names=FALSE)
+cat('Targets selected from this run:',nrow(d),'\n')
