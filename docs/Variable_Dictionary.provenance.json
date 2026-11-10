@@ -1,0 +1,24 @@
+{
+  "file": "docs/Variable_Dictionary.csv",
+  "snapshot_date": "2026-11-10",
+  "source_export": "v4_export_20261110_103922",
+  "sha256": "742c2dcf40e05607ce9b4b355c03f0c3ab8f3eb4ac88d0128f138006d876570a",
+  "rows": 2265,
+  "scopes": 180,
+  "key": [
+    "scope",
+    "field"
+  ],
+  "roles": {
+    "source_input": 449,
+    "model_variable": 47,
+    "exported_result": 1769
+  },
+  "definition_status": {
+    "documented": 1230,
+    "source_definition_unverified": 1035
+  },
+  "contains_participant_observations": false,
+  "content": "Field metadata only; no individual data or observed-value examples.",
+  "refresh": "The V4 pipeline generates submission/Variable_Dictionary.csv for each completed export; replace this snapshot together with its provenance after checking that export."
+}

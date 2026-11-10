@@ -1,5 +1,5 @@
 # Fit donor-blocked late-Braak differential-expression models.
-#!/usr/bin/env Rscript 
+#!/usr/bin/env Rscript
 
 options(stringsAsFactors = FALSE)
 

@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 'Fit the primary ADNI models and their sensitivity analyses.'
-
 from __future__ import annotations
 
 import argparse

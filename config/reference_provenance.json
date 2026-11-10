@@ -1,0 +1,240 @@
+{
+  "date": "2026-11-10",
+  "purpose": "Regression-test fingerprints, never used to fit or replace results.",
+  "source": "Author-provided completed V4 export audited against the November 6 manuscript, plus existing full processing outputs.",
+  "audited_export_index_sha256": "abda731b23e4dc4d48f451f234a5af1452ad79f7972591e13806b48941ac1e03",
+  "reference_tables": 151,
+  "changed_or_added": [
+    {
+      "record_id": "SD048",
+      "source": "enhancement/clinical/landmark_0_CV.csv",
+      "reason": "Audited 500-replicate prediction run matches the manuscript.",
+      "input_sha256": "eae0e5c928e4fbeec98da43ac7264ef08b9ab53df0e8fb6e328cf1c7a69bb017",
+      "previous": {
+        "record_id": "SD048",
+        "rows": "2",
+        "columns": "29",
+        "numeric_sha256": "b0750ae90b63c340f8086192799fd31ac5b58df8378593dabdb8a654cd787058",
+        "text_sha256": "b3fe064abf7dff3c418e4a80ee4d4840c66f69dc35606b91556a2179d5d5fd86"
+      },
+      "current": {
+        "record_id": "SD048",
+        "rows": 2,
+        "columns": 29,
+        "numeric_sha256": "6209c13f0a4df2296a818be070b50989fa7c521cb2dcc5d82524f7997e7640b6",
+        "text_sha256": "b3fe064abf7dff3c418e4a80ee4d4840c66f69dc35606b91556a2179d5d5fd86"
+      }
+    },
+    {
+      "record_id": "SD051",
+      "source": "enhancement/clinical/landmark_0_refitted_CV.csv",
+      "reason": "Audited 500-replicate prediction run matches the manuscript.",
+      "input_sha256": "4bbfbfc406a0eed33d428a2511544f9c6592f6e5ddd71ad1cd8aaafb5e6a3f9d",
+      "previous": {
+        "record_id": "SD051",
+        "rows": "2",
+        "columns": "9",
+        "numeric_sha256": "7bcc735f4eeb416530c5253bd96e356a0b1e0594a5ef17abc69d20a7f87e23c5",
+        "text_sha256": "bee5b6aa8581d449f8cccda61de81d950294c8487c7354b3bb377789b42b7784"
+      },
+      "current": {
+        "record_id": "SD051",
+        "rows": 2,
+        "columns": 9,
+        "numeric_sha256": "920e0f97603f12a33ae7ef09fe0c59f8a065d5cbb0134d2c555b83c9bec48062",
+        "text_sha256": "bee5b6aa8581d449f8cccda61de81d950294c8487c7354b3bb377789b42b7784"
+      }
+    },
+    {
+      "record_id": "SD067",
+      "source": "enhancement/clinical/stage_propagated_intervals.csv",
+      "reason": "Audited 500-replicate run matches the manuscript; no estimates were modified.",
+      "input_sha256": "165eb6007c646603c47e1a08b86f40438a50f1dcb82475ae97c9e1fa279ec333",
+      "previous": {
+        "record_id": "SD067",
+        "rows": "6",
+        "columns": "8",
+        "numeric_sha256": "d1a45a9a85cc1a625041937d16d3b413cd3324bed09a1dcda9dc0d3078ed00ad",
+        "text_sha256": "8e7e22e373655ceeab3da2f735c24891597b69803dc5ff84c043a1e29cdc65d8"
+      },
+      "current": {
+        "record_id": "SD067",
+        "rows": 6,
+        "columns": 8,
+        "numeric_sha256": "95375f52c727178407e9b3b114ee5aa4c8d3a7dc2edd227ee81398e32d3fde06",
+        "text_sha256": "8e7e22e373655ceeab3da2f735c24891597b69803dc5ff84c043a1e29cdc65d8"
+      }
+    },
+    {
+      "record_id": "SD125",
+      "source": "results/descriptive_tables/S3_ATminus_Tplus_description.csv",
+      "reason": "Two additional descriptive rows from the implemented final code.",
+      "input_sha256": "b6fc0cc226b7abc50e03625ccce2712a6dcbe6a1723e0294998d9ac68d874b43",
+      "previous": {
+        "record_id": "SD125",
+        "rows": "7",
+        "columns": "7",
+        "numeric_sha256": "f20ccf7f00c8cc1c8d93b2c3a7a10a30ca5790e1b02f36f304630b471babbbf3",
+        "text_sha256": "d4a427fa20afcdf034dc871fb4840e90917c0d5b57d6b793b9377b50f48fbb80"
+      },
+      "current": {
+        "record_id": "SD125",
+        "rows": 9,
+        "columns": 7,
+        "numeric_sha256": "cb3f1ac91c6dd7603ef0d380b0149e1386fb36ced13e01330cdef0b1f4d7d467",
+        "text_sha256": "0c909df26170c4bd1c44c10904fa406296344ec39d2d412c910878490427b54e"
+      }
+    },
+    {
+      "record_id": "SD238",
+      "source": "results/extensions/tau_sensitivity/adjusted_tau_curves.csv",
+      "reason": "Restored source already cited by the manuscript; fitted output unchanged.",
+      "input_sha256": "fd85f0d4d2db65e7cce4f0519dc191e8e6b5aa27a47e0a47193fe9d2c631477a",
+      "previous": null,
+      "current": {
+        "record_id": "SD238",
+        "rows": 404,
+        "columns": 10,
+        "numeric_sha256": "87e906da5ce368adc3bcc130cea9b4b29c45c77096c7e84caa05aeb8d5890b49",
+        "text_sha256": "67c49ff9574e1133e2d01a7e36068691004dfd7b0a5b4c2b726f8300ef6e53d2"
+      }
+    },
+    {
+      "record_id": "SD240",
+      "source": "results/extensions/spline_stability/spline_common_range_comparison.csv",
+      "reason": "Restored source already cited by the manuscript; fitted output unchanged.",
+      "input_sha256": "c8cdc70167033f16b5816f22b84c234e1b502b816a7dfcbb04ff007efdf8d73e",
+      "previous": null,
+      "current": {
+        "record_id": "SD240",
+        "rows": 404,
+        "columns": 18,
+        "numeric_sha256": "fcf251238757cf78c7fe8820c5d9b76df99821ad434cfc417fbb56db6d2145e6",
+        "text_sha256": "24a1232bf98387845e810ad1df8feb709ebf0a9a8e20b354a246862fb7adea46"
+      }
+    },
+    {
+      "record_id": "SRC_definitions_analysis_roles",
+      "source": "definitions/analysis_roles.csv",
+      "reason": "Final terminology and analysis-role descriptions.",
+      "input_sha256": "4b7529191f90613f01e64c1fb593171b4e9a5eace7ccf29fbc5b17da1487f9a0",
+      "previous": {
+        "record_id": "SRC_definitions_analysis_roles",
+        "rows": "5",
+        "columns": "2",
+        "numeric_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text_sha256": "65d7c59ce02bca586f8287cf5a984d88959389992e2dcc6773f169f74cc6a005"
+      },
+      "current": {
+        "record_id": "SRC_definitions_analysis_roles",
+        "rows": 5,
+        "columns": 2,
+        "numeric_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text_sha256": "682c60e962d6fa6599de16ae8d5e9341062fdd7ae7fa2b09bbbd316d1d594a7b"
+      }
+    },
+    {
+      "record_id": "SRC_definitions_data_sources",
+      "source": "publication/data_sources.csv",
+      "reason": "Includes the independently used GSE174367 source; no fitted estimates.",
+      "input_sha256": "dda6fc94a29433ace04111260001cdc4c14a20dbf1ca7c26e760e859670a3e50",
+      "previous": {
+        "record_id": "SRC_definitions_data_sources",
+        "rows": "6",
+        "columns": "4",
+        "numeric_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text_sha256": "fbf0127974f529345f03e28907c09ca39068a21bf220b9beb70493e080dfa06e"
+      },
+      "current": {
+        "record_id": "SRC_definitions_data_sources",
+        "rows": 7,
+        "columns": 4,
+        "numeric_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "text_sha256": "55075d2c2400f0e5605fb321adfbb5322b5961684d4ed0f5d394d40666c630e7"
+      }
+    },
+    {
+      "record_id": "CL_124",
+      "source": "closeout/sex_interaction/model_diagnostics.csv",
+      "reason": "Restored source already cited by the manuscript; fitted output unchanged.",
+      "input_sha256": "ddaadcd296f0e125e08c1962be972416f1a36d2191bf6f4282fff9a60024b902",
+      "previous": null,
+      "current": {
+        "record_id": "CL_124",
+        "rows": 8,
+        "columns": 14,
+        "numeric_sha256": "f754c37a0edf0ec2091dab52556730df622b1f3f0db2285f6520f1c7331d8d02",
+        "text_sha256": "a50a29c5dd7b5460b8cd875650387a13e918f047bb188cf35ffe71cfcc51a29a"
+      }
+    },
+    {
+      "record_id": "FIG_FigureS19_source",
+      "source": "closeout/figure_sources/FigureS19_source.csv",
+      "reason": "Threshold bootstrap uses the audited 500-replicate run, matching Table S5D and current manuscript.",
+      "input_sha256": "0f9aa4eef31f1caf274d1000986f9746b7372cd786c74422ada1d861963e77a7",
+      "previous": {
+        "record_id": "FIG_FigureS19_source",
+        "rows": "6",
+        "columns": "8",
+        "numeric_sha256": "d1a45a9a85cc1a625041937d16d3b413cd3324bed09a1dcda9dc0d3078ed00ad",
+        "text_sha256": "8e7e22e373655ceeab3da2f735c24891597b69803dc5ff84c043a1e29cdc65d8"
+      },
+      "current": {
+        "record_id": "FIG_FigureS19_source",
+        "rows": 6,
+        "columns": 8,
+        "numeric_sha256": "95375f52c727178407e9b3b114ee5aa4c8d3a7dc2edd227ee81398e32d3fde06",
+        "text_sha256": "8e7e22e373655ceeab3da2f735c24891597b69803dc5ff84c043a1e29cdc65d8"
+      }
+    },
+    {
+      "record_id": "QC_PROCESSING_COUNTS",
+      "source": "publication/processing_feature_counts.csv",
+      "reason": "New seven-row all-feature count summary; BH and target/full-feature correspondence independently verified.",
+      "input_sha256": "6b39d8d2a9c8fa19b9982fa417e1be0a4203d22d3ab3f87ce32072951f698eba",
+      "previous": null,
+      "current": {
+        "record_id": "QC_PROCESSING_COUNTS",
+        "rows": 7,
+        "columns": 8,
+        "numeric_sha256": "be808aa62bc1e374a451e70df57d0fd169890f5f3105c41735134e7390fc34f3",
+        "text_sha256": "ff63933d4ea7cfa20540811b3dd249bcb6d0ef99611ab12f05198173fc718029"
+      }
+    },
+    {
+      "record_id": "MAIN_TABLE4_DISPLAY",
+      "source": "publication/Table4_display.csv",
+      "reason": "Derived display-only rounding from unchanged 16-target QC estimates.",
+      "input_sha256": "7178dee5405f483a8082331bc493811c2cfda1c90ccda6d1326a5ac956a24c90",
+      "previous": null,
+      "current": {
+        "record_id": "MAIN_TABLE4_DISPLAY",
+        "rows": 16,
+        "columns": 7,
+        "numeric_sha256": "2120d85cb0a7c6e2a11e6914c1f7ed86b2a884321f10c57eff6c652c3b50cdcd",
+        "text_sha256": "047108b9dab836d2ce3bca008f4bace311bf52c7b1de67a2d120500c172b2eeb"
+      }
+    },
+    {
+      "record_id": "D3_GSE174367_target_results",
+      "source": "D3/GSE174367_target_results.csv",
+      "reason": "Resolved source status distinguishes low-expression filtering; test estimates are unchanged.",
+      "input_sha256": "30de0ad7da13de1be45d1e7ba850fae1133dfc97d4970c40ae2f01efe73ad147",
+      "previous": {
+        "record_id": "D3_GSE174367_target_results",
+        "rows": "224",
+        "columns": "13",
+        "numeric_sha256": "540727d46d0c9ecc526afbeb1998b4304651efc7c08a1cb5725642bf3d3b2d0a",
+        "text_sha256": "fef98048f648c1e4d2fe75fd2ae503d8b65a9dc32f611fa29b1a3d62f44406f3"
+      },
+      "current": {
+        "record_id": "D3_GSE174367_target_results",
+        "rows": 224,
+        "columns": 13,
+        "numeric_sha256": "540727d46d0c9ecc526afbeb1998b4304651efc7c08a1cb5725642bf3d3b2d0a",
+        "text_sha256": "768c5d6ec1d8ba14eb22fffe4f8a9d68a3e0f8c5b6a42a3a9b26c6255c6ea594"
+      }
+    }
+  ],
+  "audit_scope": "This is a stored-result export audit, not a fresh Linux/R model refit. Word files are not changed by the code."
+}

@@ -1,7 +1,6 @@
 # Prepare expression, annotation and donor data for GSE131617.
 #!/usr/bin/env Rscript
 
-
 options(stringsAsFactors = FALSE)
 
 stop_with <- function(message) stop(message, call. = FALSE)
@@ -127,10 +126,12 @@ representative <- unique_map[!duplicated(unique_map$entrez_id), ]
 if (anyDuplicated(representative$entrez_id)) stop_with("Entrez representative selection failed.")
 write_csv_gz(data.frame(entrez_id = representative$entrez_id, values[representative$feature_id, , drop = FALSE], check.names = FALSE), entrez_expression_file)
 
-header <- readxl::read_excel(subject_file, sheet = 1, range = "D4:K5", col_names = FALSE, .name_repair = "minimal")
+subject_sheet <- config$paths$gse_subject_sheet
+if(is.null(subject_sheet))subject_sheet <- 1
+header <- readxl::read_excel(subject_file, sheet = subject_sheet, range = "D4:K5", col_names = FALSE, .name_repair = "minimal")
 required_header_terms <- c("Subject ID", "Gender", "NFT", "SP", "APOE", "AAD", "PMI")
 if (any(!vapply(required_header_terms, grepl, logical(1), x = paste(unlist(header), collapse = " | "), fixed = TRUE))) stop_with("Unexpected S8 donor-table header in D4:K5.")
-s8 <- readxl::read_excel(subject_file, sheet = 1, range = "D6:K100", col_names = FALSE, .name_repair = "minimal")
+s8 <- readxl::read_excel(subject_file, sheet = subject_sheet, range = "D6:K100", col_names = FALSE, .name_repair = "minimal")
 if (ncol(s8) != 8L) stop_with("Expected eight columns in S8 range D6:K100.")
 
 donors <- data.frame(
