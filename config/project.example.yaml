@@ -1,0 +1,26 @@
+# The runner creates a run-local copy after staging authorized inputs.
+
+paths:
+  adni_raw_dir: data/private/adni/raw
+  adni_master: data/private/adni/adni_pet_aligned_master.csv
+  adni_model_counts: results/adni/adni_model_counts.csv
+
+  gse_series_matrix: data/public/gse131617/raw/GSE131617-GPL5175_series_matrix.txt.gz
+  gse_subject_info: data/public/gse131617/raw/published_supplement.xls
+  gse_subject_sheet: Supple_Table_S8
+  gse_feature_expression: data/public/gse131617/expression_feature.csv.gz
+  gse_feature_annotation: data/public/gse131617/feature_annotation.csv
+  gse_manifest: data/public/gse131617/sample_manifest.csv
+  gse_expression: data/public/gse131617/expression_entrez.csv.gz
+
+  adni_results: results/adni/adni_results.csv
+  gse_results_dir: results/gse131617
+
+  gse_gene_symbols: data/contracts/gene_symbols.csv
+
+analysis:
+  primary_window_days: 180
+  sensitivity_window_days: 90
+  tau_positive_threshold: 1.34
+  fdr_alpha: 0.05
+
