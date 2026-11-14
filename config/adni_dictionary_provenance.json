@@ -1,7 +1,0 @@
-{
-  "source": "Local ADNI DATADIC.csv",
-  "sha256": "191700709944fc431ef198a53fb6b962471af376b9efa9feee02db4213a78296",
-  "metadata_rows": 2335,
-  "exact_table_field_pairs": 1684,
-  "selection": "Exact source table and field names present in local raw inputs; phases preserved; no participant rows or raw data values included. No table-version aliases inferred."
-}
