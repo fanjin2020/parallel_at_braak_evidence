@@ -1,58 +1,118 @@
 # PET-defined amyloid/tau states and late-Braak transcriptomic context
 
-V5 contains the analysis and publication-export code for this study. It fits models from local source data and produces one numbered figure set with its source tables. It does not generate or edit Word manuscripts.
+V5 contains the source-data analysis and publication-export code for this study. It produces one numbered figure set and its supporting data tables. A fresh run does not require an earlier code release, an author's server directory or previously fitted models. The code does not generate or edit Word manuscripts.
 
-## Run with data already available
+## Reproduce from source data
 
-Use Linux, Python 3.12, R 4.4.2 and the existing `paper2-r442` environment. Python dependencies are listed in `requirements.txt`; R analyses use Bioconductor 3.20, including limma, edgeR, oligo 1.70.1 and their dependencies, plus statmod, dtangle, readxl, jsonlite and yaml. Actual versions are recorded with each run.
+Use Linux with Python 3.12. Full analysis also requires R 4.4.2 and the packages listed under [Software environment](#software-environment). Download or clone this repository, then run the commands below from its root directory:
 
 ~~~bash
-conda activate paper2-r442
-cd /home/research/git/repository/parallel_at_braak_evidence_V5
-bash run.sh --data-root /home/research/git/repository/parallel_at_braak_evidence_V4
+git clone https://github.com/fanjin2020/parallel_at_braak_evidence.git
+cd parallel_at_braak_evidence
 ~~~
 
-The launcher reads local raw ADNI tables, public-data caches and saved input locations from the selected project. It prints the resolved locations before fitting. With `--data-root`, it searches only that project and the input locations recorded by its previous runs. Without `--data-root`, it uses this repository's local input locations; it does not search neighboring projects. Multiple candidates with different recorded snapshots require an explicit path. It does not reuse earlier model estimates, move source files, download data or install packages. Missing inputs stop the run with the corresponding argument name.
+### 1. Download the public inputs
 
-For another layout, supply the directories explicitly:
+~~~bash
+bash download.sh \
+  --cache-dir "$PWD/cache/public" \
+  --public-cache "$PWD/cache/public/GSE174367"
+~~~
+
+`download.sh` calls `scripts/download_public.py`. Its default is `--only all`, which retrieves both groups of public inputs used by the workflow:
+
+| Input | Files retrieved |
+| --- | --- |
+| GSE131617 | Series matrix, official file list and the CEL file for each sample in the discovery matrix |
+| GSE44770 | Series matrix and GPL4372 platform annotation table |
+| GSE106241 | Expression matrix and GEO SOFT metadata |
+| GSE174367 | Single-nucleus H5 count matrix and cell metadata |
+| Published supporting data | Donor supplement and the Sutton et al. cell-reference workbook |
+| Gene and pathway annotations | Human gene information, human GO associations (GAF) and the matching GO ontology (OBO) |
+
+These are the public research inputs required by this workflow, not every file deposited under each GEO accession. The downloader does not retrieve ADNI data, install software packages or run analyses. The CEL and single-nucleus files are large; allow sufficient storage for both downloaded inputs and analysis working files.
+
+Existing complete files are reused and partial downloads can resume. Files are checked against recorded hashes when available; an existing snapshot with a conflicting identity is not overwritten. Each cache receives a `public_sources_manifest.json` recording its sources and file identities. Keep the manifests with the data.
+
+The main and single-nucleus caches must be distinct directories; the layout above uses a subdirectory for the latter. To download only one group, use `--only main` or `--only single-nucleus`.
+
+### 2. Obtain authorized ADNI inputs
+
+Apply through the [ADNI data-access page](https://adni.loni.usc.edu/data-samples/adni-data/) and obtain the required tables under the ADNI data-use agreement. ADNI participant-level data and restricted derivatives are not included in this repository or downloaded by its scripts.
+
+For the example run below, place your authorized tables in these local directories:
+
+| Directory | Required filenames |
+| --- | --- |
+| `private_inputs/adni/primary_raw/` | `ADSL.csv`, `APOERES.csv`, `CDR.csv`, `DATA_DOWNLOADED_DATE.csv`, `DXSUM.csv`, `PTDEMOG.csv`, `UCBERKELEY_AMY_6MM.csv`, `UCBERKELEY_TAU_6MM.csv`, `UCBERKELEY_TAUPVC_6MM.csv`, `UCBERKELEYFDG_8mm.csv`, `UCSFFSX7.csv` |
+| `private_inputs/adni/confounder_raw/` | `GDSCALE.csv`, `BACKMEDS.csv`, `MEDHIST.csv`, `MODHACH.csv`, `RECCMEDS.csv`, `INITHEALTH.csv` |
+| `private_inputs/adni/event_tables/` | `STUDYSUM.csv`, `REGISTRY.csv`, `ADVERSE.csv`, `RECADV.csv`, `TREATDIS.csv`, `DATADIC.csv`, `DATA_DOWNLOADED_DATE.csv`; also `OTDISC.csv` when available |
+
+Use the original source fields and consistent data snapshots. `DATA_DOWNLOADED_DATE.csv` records the source snapshot in its `data_downloaded_date` field; do not substitute the analysis execution date. Field names and transformations are documented in [the variable dictionary](docs/Variable_Dictionary.csv). Missing required tables stop the run; empty placeholder files are not substitutes.
+
+Alternatively, replace `--confounder-raw-dir` in the command below with `--adnimerge2-dir /path/to/authorized/ADNIMERGE2`. This must be an already downloaded, unpacked package containing `DESCRIPTION` and the six corresponding `data/*.rda` tables. No package download or ADNI login is performed by the analysis.
+
+`private_inputs/` is a local, ignored directory. Do not commit or upload it.
+
+### 3. Run the analyses and final export
+
+After installing the [software environment](#software-environment) and preparing both public and authorized ADNI inputs:
 
 ~~~bash
 bash run.sh \
-  --adni-raw-dir /data/adni/primary_raw \
-  --adnimerge2-dir /data/adni/ADNIMERGE2_local \
-  --adni-tables /data/adni/event_tables \
-  --cache-dir /data/public/main_cache \
-  --public-cache /data/public/GSE174367
+  --adni-raw-dir "$PWD/private_inputs/adni/primary_raw" \
+  --confounder-raw-dir "$PWD/private_inputs/adni/confounder_raw" \
+  --adni-tables "$PWD/private_inputs/adni/event_tables" \
+  --cache-dir "$PWD/cache/public" \
+  --public-cache "$PWD/cache/public/GSE174367"
 ~~~
 
-| Argument | Local input |
-| --- | --- |
-| `--adni-raw-dir` | ADSL, APOERES, CDR, DATA_DOWNLOADED_DATE, DXSUM, PTDEMOG, UCBERKELEY_AMY_6MM, UCBERKELEY_TAU_6MM, UCBERKELEY_TAUPVC_6MM, UCBERKELEYFDG_8mm and UCSFFSX7 CSV files |
-| `--adnimerge2-dir` | Downloaded, unpacked ADNIMERGE2 package, with DESCRIPTION and local R data files |
-| `--confounder-raw-dir` | Alternative to the R package: GDSCALE, BACKMEDS, MEDHIST, MODHACH, RECCMEDS and INITHEALTH CSV files |
-| `--adni-tables` | STUDYSUM, REGISTRY, ADVERSE, RECADV, TREATDIS, DATADIC and DATA_DOWNLOADED_DATE; OTDISC when available |
-| `--private-bundle` | Alternative to event-table directory: the existing private ADNI event archive |
-| `--cache-dir` | Public cache with public_sources_manifest.json, source matrices, CEL files, matching annotation snapshots and reference workbook |
-| `--public-cache` | GSE174367 H5 raw counts and cell metadata |
+The launcher prints the resolved input locations, fits the models and exports the publication files. `run.sh` is offline: it does not download data or install packages. Missing inputs or dependencies stop the run with an error. The environment name is not fixed; activate whichever Linux environment contains the required versions before running the command.
 
-ADNI access remains subject to its data-use agreement. There is no ADNI downloader. Source data and restricted derivatives must remain outside the public repository.
+### Data versions and exact numerical reproduction
 
-## Download public inputs separately
+A fresh download can rebuild the analyses, but matching the manuscript's exact numbers requires the same ADNI release, public-data snapshots, annotations and software environment. Unversioned upstream gene and GO annotations can change. A new download of their latest release is not equivalent to the manuscript's original snapshot.
 
-Skip this section when the data are already available.
+To use specific, already available annotation snapshots during public-data preparation, supply `--gene-info`, `--go-gaf` and `--go-ontology` to `download.sh`. The OBO release must match the release declared in the GAF. An unavailable historical snapshot is not silently replaced by another release. Run logs record input identities and installed software versions.
+
+## Software environment
+
+The analysis entry point requires Linux, Python 3.12, R 4.4.2, Bioconductor 3.20, `statsmodels` 0.14.6 and `oligo` 1.70.1. Bioconductor 3.20 belongs to the R 4.4 release series; see the [official version table](https://www.bioconductor.org/about/release-announcements/). The conda environment used for the manuscript was named `paper2-r442`, but that name and the authors' filesystem layout are not required.
+
+In your Python 3.12 environment, install the Python packages before starting the offline analysis:
 
 ~~~bash
-bash download.sh --cache-dir /data/public/main_cache \
-                 --public-cache /data/public/GSE174367
+python3 -m pip install -r requirements.txt
 ~~~
 
-This separate command retrieves GSE131617 expression and CEL files, GSE44770, GSE106241, GSE174367, the published donor supplement, cell-reference workbook, human gene annotation and GO annotation. It reuses existing complete files and resumes partial downloads. It never overwrites an existing snapshot with different bytes.
+In R 4.4.2, install the required CRAN and Bioconductor packages and their dependencies:
 
-The main cache and single-nucleus cache must be different directories. The default places the single-nucleus files in a subdirectory. A shared directory, including a symbolic-link alias to the same directory, is rejected before downloading; an existing manifest of the other cache type is also protected.
+~~~r
+stopifnot(getRversion() == "4.4.2")
+options(repos = c(CRAN = "https://cloud.r-project.org"), timeout = 3600)
+install.packages(c("BiocManager", "yaml", "readxl", "jsonlite", "statmod", "dtangle"))
+BiocManager::install(version = "3.20", ask = FALSE, update = FALSE)
+BiocManager::install(
+  c("BiocVersion", "limma", "edgeR", "Biobase", "AnnotationDbi", "org.Hs.eg.db",
+    "huex10sttranscriptcluster.db", "oligo", "pd.huex.1.0.st.v2", "preprocessCore"),
+  version = "3.20", ask = FALSE, update = FALSE
+)
+stopifnot(as.character(packageVersion("oligo")) == "1.70.1")
+~~~
 
-Use `--only main` or `--only single-nucleus` to fetch one group. Optional `--go-gaf`, `--go-ontology` and `--gene-info` select already downloaded public snapshots. The OBO release must match the release declared by the GAF. If an older ontology projection is unavailable upstream, retain the original local snapshot; a different release is not an equivalent replacement.
+These installation commands require network access and may require system compilers and development libraries on Linux. They are separate from data downloading and analysis. The workflow checks required versions and packages before fitting and records the versions actually used; `requirements.txt` contains ranges for several dependencies rather than a complete environment lockfile.
 
-Unversioned upstream annotations can change. Exact manuscript reproduction requires the recorded cache snapshot, not a new download of the latest annotation.
+## Reuse data already downloaded
+
+Skip the download step and run the same analysis command with your existing input directories. Keep the public-cache manifests and matching source files together. No previous model results are needed.
+
+For an existing source-data project with a supported directory layout or recorded input locations, the optional convenience argument is:
+
+~~~bash
+bash run.sh --data-root /path/to/existing_source_data_project
+~~~
+
+With `--data-root`, the launcher searches only that project and input locations recorded by its runs. It does not search neighboring projects or reuse their fitted estimates. Different candidate snapshots require an explicit choice. The individual path arguments in step 3 work independently of any previous project layout.
 
 ## Outputs
 
@@ -83,21 +143,13 @@ bash run.sh --data-root /path/to/existing_data_project \
   --output-dir /path/to/interrupted_run --resume
 ~~~
 
-Export from an intact completed V4 or V5 fitted workspace:
+Export from an intact completed fitted workspace:
 
 ~~~bash
 bash run.sh --export-only --from-run /path/to/completed_run
 ~~~
 
 Export-only does not fit models or download data. It requires the original `.work`, `audit` and `COMPLETED.json`, including any linked workspaces. A submission ZIP alone cannot supply fitted model inputs. Export-only cannot repair outdated model estimates; run the full workflow after a statistical-code change.
-
-After a figure-label or export-only code change, reuse the latest completed model run in this project:
-
-~~~bash
-conda activate paper2-r442
-cd /home/research/git/repository/parallel_at_braak_evidence_V5
-bash run.sh --export-only --from-run "$PWD"
-~~~
 
 This writes a new `runs/v5_export_YYYYMMDD_HHMMSS/submission` folder and prints its location. It redraws the same 28 numbered figures in PDF, SVG and PNG, regenerates the submission data and dictionary, and updates the output checksum manifest. Earlier fitted results and submission folders are not overwritten. A/T minus signs are formatted only in plot labels; CSV category keys and numeric results retain their original values.
 
