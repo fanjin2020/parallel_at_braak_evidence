@@ -1,0 +1,18 @@
+{
+  "release": "review_followup_20261031_r1",
+  "seed": 20261031,
+  "bootstrap": 500,
+  "minimum_valid_fraction": 0.9,
+  "original_probability_limits": [0.001, 0.999],
+  "minimum_effective_people": 40,
+  "maximum_person_weight_share": 0.1,
+  "observation_models": ["full_history", "reduced_history"],
+  "weight_scenarios": {"untrimmed": null, "trim_01_99": [0.01, 0.99], "trim_05_95": [0.05, 0.95]},
+  "interpretation": "Additional exploratory observation-process sensitivity within the selected common sample. The original all-window stopping rule is retained and reported separately. Finite observed weights do not establish positivity or correct initial selection, death, unmeasured attendance or within-window visit frequency.",
+  "support_policy": "The original threshold is not relaxed. Additional sensitivities use finite positive probabilities, converged full-rank observation models and raw observed weights with effective participant count at least 40 and largest participant share at most 0.10. These are numerical reporting safeguards, not proof of identification. All-zero periods remain unsupported and are explicitly reported. Trimming cannot rescue a failed raw-weight safeguard.",
+  "contrast": "Modeled baseline-to-two-year CDR-SB change difference across the observed tau IQR, normalized per 0.1 SUVR; standardization uses one record per participant. Each bootstrap re-estimates the IQR, observation model, trimming cutoffs and outcome model.",
+  "sources": [
+    "https://pubmed.ncbi.nlm.nih.gov/18682488/",
+    "https://www.statsmodels.org/stable/generated/statsmodels.genmod.generalized_estimating_equations.GEE.html"
+  ]
+}

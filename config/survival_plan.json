@@ -1,0 +1,28 @@
+{
+  "seed": 20261031,
+  "mnar": {
+    "years": 2,
+    "window_days": 180,
+    "imputations": 100,
+    "delta_points": [
+      -2,
+      -1,
+      -0.5,
+      0,
+      0.5,
+      1,
+      2
+    ],
+    "tau_gradient_points": [
+      -1,
+      0,
+      1
+    ],
+    "minimum_observed": 40,
+    "pmm_donors": 5,
+    "clock": "selected baseline CDR date",
+    "population": "A+ complete-baseline participants with full administrative opportunity and documented survival through the end of the outcome window",
+    "estimand": "Adjusted two-year CDR-SB level contrast across the target-population tau IQR, normalized per 0.1 SUVR; not the original repeated-measures trajectory estimand",
+    "assumptions": "Delta and tau-gradient values are sensitivity assumptions, not estimated missingness effects or clinical thresholds. Unknown survival is excluded and counted. Death is not imputed as CDR-SB."
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "file": "docs/Variable_Dictionary.csv",
+  "snapshot_date": "2026-11-13",
+  "source_export": "v4_export_20261110_103922",
+  "sha256": "32167512d1f39d6026cfa7a48f3c3b64a2ac11064a1c7e4eddaf407dd9feb615",
+  "rows": 2265,
+  "scopes": 180,
+  "key": [
+    "scope",
+    "field"
+  ],
+  "roles": {
+    "source_input": 449,
+    "model_variable": 47,
+    "exported_result": 1769
+  },
+  "definition_status": {
+    "documented": 1261,
+    "source_definition_unverified": 1004
+  },
+  "contains_participant_observations": false,
+  "content": "Field metadata only; no individual data or observed-value examples.",
+  "refresh": "The V5 pipeline generates submission/Variable_Dictionary.csv directly from used fields and exported results.",
+  "v5_update": "Two processing-count descriptions were changed to describe their calculation without claiming independent checks inside the exporter. Counts, field keys, definitions and all statistical estimates are otherwise unchanged.",
+  "metadata_update": {
+    "date": "2026-11-13",
+    "definition_fields_updated": 94,
+    "model_values_changed": false,
+    "evidence": "Source-specific definitions checked against longitudinal_model_comparison.py, stage_sensitivity.py, external preparation/model code and exported source records"
+  }
+}
